@@ -1,0 +1,124 @@
+#!/bin/bash
+
+# GLOBAL VARS
+NPM="npm"
+PHP="php"
+CURL="curl"
+BOWER="bower"
+LARAVEL="laravel"
+COMPOSER="composer"
+
+# CHECKS ARGUMENTS PASSED TO PROGRAM
+# SCRIPT VISION:
+# laravel-bootstrap [$project-name] [$composer-package] [$bower-package]
+
+# '#' Stores the number of arguments associated w/ command
+if [ $# -eq 0 ] ; then
+	echo "Yo Man... Something went wrong!"
+	echo "Check your syntax. Argument(s) may be missing."
+	exit 1
+elif [ $# -gt 1 ] ; then
+	echo "Yo Man... Relax!"
+	echo "You went a little crazy there with all those arguments."
+	exit 1
+else
+	# SCRIPT ARGUMENTS
+	# !!Remember to ask Steve proper syntax for commands, vars, constants, global vars, etc.!!
+	project_name="$1"
+
+	# Create new laravel (project_name)
+	# !!Remember to ask Steve how to set var defaults!!
+	${LARAVEL} new ${project_name}
+
+	# Change directory to (project_name)
+	cd ${project_name}
+
+	# Duplicate .env.example to .env
+	cp .env.example .env
+	echo "Your env was created successfully!"
+
+	# Create project folder structure
+	mkdir -p ./resources/views/layouts/partials
+	mkdir ./resources/views/pages
+	touch ./resources/views/layouts/master.blade.php
+	touch ./resources/views/pages/landing.blade.php
+
+		# Update route
+		# sed -Ei "s/welcome/pages\\.landing/g" ./app/Http/routes.php
+
+	echo "Your project folders & files were created successfully!"
+
+	# !!! NEED TO FIGURE OUT HOW TO HANDLE !!!
+	# !!! FAILURES/ERRORS IN CURL REQUESTS !!!
+	# ...but it works
+
+	# Create "master.blade.php" file
+	# Curl Gist "https://gist.githubusercontent.com/alexhernandez/bc9f4a1994732e15df3d/raw/2d7d31fa89c3d231156e255d58feb05dc294f273/master.blade.php"
+	master_template_file="master.blade.php"
+	master_template_gist_uri="https://gist.githubusercontent.com/alexhernandez/bc9f4a1994732e15df3d/raw/2d7d31fa89c3d231156e255d58feb05dc294f273/master.blade.php"
+		
+		${CURL} -s ${master_template_gist_uri} > ./resources/views/layouts/${master_template_file}
+		echo "Your ${master_template_file} was created successfully!"
+
+	# Create ".bowerrc" file
+	# Curl Gist "https://gist.githubusercontent.com/alexhernandez/c3b0d97538f5869d7f86/raw/8411a064facde1ea007585471f7683a0d546e2eb/.bowerrc"
+	bower_file=".bowerrc"
+	bower_gist_uri="https://gist.githubusercontent.com/alexhernandez/c3b0d97538f5869d7f86/raw/8411a064facde1ea007585471f7683a0d546e2eb/.bowerrc"
+		
+		${CURL} -s ${bower_gist_uri} > ${bower_file}
+		echo "Your ${bower_file} was created successfully!"
+
+	# Create "elixir.json" file
+	# Curl Gist "https://gist.githubusercontent.com/alexhernandez/963c188f23e14e33929e/raw/a692c7ba6a911292d7d17875dde8c482b22c08a8/elixir.json"
+	elixir_file="elixir.json"
+	elixir_gist_uri="https://gist.githubusercontent.com/alexhernandez/963c188f23e14e33929e/raw/a692c7ba6a911292d7d17875dde8c482b22c08a8/elixir.json"
+
+		${CURL} -s ${elixir_gist_uri} > ${elixir_file}
+		echo "Your ${elixir_file} was created successfully!"
+
+	# Create "Gulpfile" file
+	# Curl Gist "https://gist.githubusercontent.com/alexhernandez/42df05909d0dbb727ce2/raw/8d52543e942a6191b8e0b0953451e6a565c278fd/gulpfile.js"
+	gulp_file="gulpfile.js"
+	gulp_gist_uri="https://gist.githubusercontent.com/alexhernandez/42df05909d0dbb727ce2/raw/8d52543e942a6191b8e0b0953451e6a565c278fd/gulpfile.js"
+
+		${CURL} -s ${gulp_gist_uri} > ${gulp_file}
+		echo "Your ${gulp_file} was updated successfully!"
+
+	# Generate Laravel Install App Key
+	${PHP} artisan key:generate
+
+	# Add Form/HTML Facade & update config/app.php
+	# !! Remember to ask Steve how to set default arguments that are nice to have !!
+	composer_package="illuminate/html"
+	config_app="./config/app.php"
+		
+		${COMPOSER} require ${composer_package}
+		echo "Your composer package '${composer_package}' was added successfully!"
+
+		# NEED BETTER SOLUTION FOR THIS... but it works
+		# Update config/app.php "Providers" + "Aliases"
+		sed -ie "/'providers'/ a\\
+		\\		Illuminate\\\Html\\\HtmlServiceProvider::class, \\
+		"	${config_app}
+
+		sed -ie "/'aliases'/ a\\
+		\\		'Form'	    => Illuminate\\\Html\\\FormFacade::class, \\
+		\\		'HTML'	    => Illuminate\\\Html\\\HtmlFacade::class, \\
+		"	${config_app}
+
+		# Kill That Random File Created...
+		rm "${config_app}e"
+
+		echo "Your ${config_app} was updated successfully!"
+
+	# Install all Node Packages, --loglevel silent?
+	${NPM} install
+
+	# Integrate Bower
+	${BOWER} init
+		# foreach bower package?
+		${BOWER} install bootstrap-sass-official --save
+		${BOWER} install fontawesome --save
+		# endforeach
+    exit 1
+fi

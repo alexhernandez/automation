@@ -1,2 +1,2 @@
 # Automation
-META+Lab folder for handling project automation
+Hassle Free Setup of Your Mac Binaries, Applications, Projects and Plugins

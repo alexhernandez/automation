@@ -4,149 +4,169 @@
 # Bootstrapping A Laravel Project
 # v1.0.0
 
-# Getting Started Options:
-# laravel-bootstrap <project-name>
-# 1. ADD A FRESH LARAVEL INSTALL + BOOTSTRAP FRONT-END
-# 2. OR ONLY BOOTSTRAP FRONT-END IF INSTALL ALREADY EXISTS
-# ===============================================================|
-
 # GLOBAL VARS
 NPM=$(which npm)
 PHP=$(which php)
 CURL=$(which curl)
 BOWER=$(which bower)
-LARAVEL=$(which laravel)
 COMPOSER=$(which composer)
 
-# Just in case...
-project_dir=$(pwd)
+PROJECT_NAME=""
+PROJECT_DIR=$(pwd)
 
-# Check if packages are available
-if [[ -z ${NPM} || -z ${PHP} || -z ${CURL} || -z ${BOWER} || -z ${LARAVEL} || -z ${COMPOSER} ]]; then
-  echo "Oh no package(s) are missing!"
-  # REMEMBER TO ASK ABOUT EXIT #?
+# PACKAGE/DEPENDANCY AVAILABILITY CHECK
+if [[ -z ${NPM} ]]; then
+  echo "Oh no ruby is missing!"
+  exit 2
+elif [[ -z ${PHP} ]]; then
+  echo "Oh no brew is missing!"
+  exit 2
+elif [[ -z ${CURL} ]]; then
+  echo "Oh no curl is missing!"
+  exit 2
+elif [[ -z ${BOWER} ]]; then
+  echo "Oh no bower is missing!"
+  exit 2
+elif [[ -z ${COMPOSER} ]]; then
+  echo "Oh no composer is missing!"
   exit 2
 fi
-
-# Check number of arguments passed
-if [ $# -eq 0 ] ; then
-  echo "Yo Man... Something went wrong!"
-  echo "Check your syntax. Argument(s) may be missing."
-  echo "Try: laravel-bootstrap <project-name>"
-  exit 1
-elif [ $# -gt 1 ] ; then
-  echo "Yo Man... Relax!"
-  echo "You went a little crazy there with all those arguments."
-  echo "Try: laravel-bootstrap <project-name>"
-  exit 1
-fi
-
-# Grab Project Name
-project_name="$1"
-
-while true; do
-    # MAYBE ASK FOR PROJECT NAME HERE INSTEAD?
-    read -p "Do you wish to install Laravel? (y/n) " answer
-    case $answer in
-        # ASK ABOUT PROPER SWITCH SYNTAX ';',';;','break'
-        [Yy]* ) ${LARAVEL} new ${project_name}
-                # Resource(s): http://www.eriwen.com/bash/pushd-and-popd/,
-                # http://unix.stackexchange.com/questions/77077/how-do-i-use-pushd-and-popd-commands
-                pushd "${project_dir}/${project_name}"
-
-                # Duplicate .env.example to .env
-                cp .env.example .env
-                echo "Your env was created successfully!"
-
-                # Generate Laravel Install App Key
-                ${PHP} artisan key:generate
-                break;;
-        [Nn]* ) break;;
-        * ) echo "Please answer y or n.";;
-    esac
-done
 
 # =================================================
 # IMPROVEMENTS: ADD REPO TO IMPROVE FILE CREATION
 # THAT WILL CLEAN UP CODE AND MAKE IT EASIER
 # =================================================
 
-# Lets Bootstrap the Front-End
-printf "Bootstraping Front-End Initiated...\n\n"
+# CREATE ENV + APP:KEY
+while true; do
+  printf "\n"
+  read -p "Do you wish to add a '.env' file (Y/n)? " answer
+  case $answer in
+  [Yy]* )
+    if [[ ! -f "${PROJECT_DIR}/.env.example" ]]; then
+      echo "File not found!"
+      echo "Are you in the correct project folder?"
+      exit 2
+    else
+      cp .env.example .env
+      echo "Your env was updated successfully!"
+      ${PHP} artisan key:generate
+    fi
+    break
+    ;;
+  [Nn]* ) :
+    break
+    ;;
+  * )
+    echo "Please answer y or n."
+    ;;
+  esac
+done
 
-# Create Laravel project folder structure
-mkdir -p "resources/views/layouts/partials"
-mkdir    "resources/views/pages"
-touch    "resources/views/layouts/master.blade.php"
-touch    "resources/views/pages/landing.blade.php"
+# Create Laravel View Directories
+while true; do
+  printf "\n"
+  read -p "Do you wish to create the view directories? (Y/n) " answer
+  case $answer in
+  [Yy]* )
+    if [[ ! -d "${PROJECT_DIR}/resources" ]]; then
+      echo "Resources folder not found!"
+      exit 2
+    else
+      mkdir "resources/views/pages"
+      pushd "resources/views/pages"
+        page_template_file="landing.blade.php"
+        page_template_gist_uri="https://gist.githubusercontent.com/alexhernandez/486a758fdcac73e27687/raw/7049dbe66ac814038227cccc7f3d1b6f89c5a4a6/page.blade.php"
+        ${CURL} -os ${page_template_gist_uri} > ${page_template_file}
+      popd
+      echo "Your ${page_template_file} was updated successfully!"
 
-echo "Your project folders & files were created successfully!"
+      mkdir "resources/views/layouts"
+      pushd "resources/views/layouts"
+        mkdir "partials"
+        master_template_file="master.blade.php"
+        master_template_gist_uri="https://gist.githubusercontent.com/alexhernandez/bc9f4a1994732e15df3d/raw/2d7d31fa89c3d231156e255d58feb05dc294f273/master.blade.php"
+        ${CURL} -os ${master_template_gist_uri} > ${master_template_file}
+      popd
+      printf "\n"
+      echo "Your ${master_template_file} was updated successfully!"
+      echo "All your project folders & files were updated successfully!"
+    fi
+    break
+    ;;
+  [Nn]* ) :
+    break
+    ;;
+  * )
+    echo "Please answer y or n."
+    ;;
+  esac
+done
 
-# Create "master.blade.php" file
-# Curl Gist "https://gist.githubusercontent.com/alexhernandez/bc9f4a1994732e15df3d/raw/2d7d31fa89c3d231156e255d58feb05dc294f273/master.blade.php"
-master_template_file="master.blade.php"
-master_template_gist_uri="https://gist.githubusercontent.com/alexhernandez/bc9f4a1994732e15df3d/raw/2d7d31fa89c3d231156e255d58feb05dc294f273/master.blade.php"
+while true; do
+  printf "\n"
+  read -p "Do you wish to add all project dependancies? (Y/n) " answer
+  case $answer in
+  [Yy]* )
+    # Create ".bowerrc" file
+    bower_file=".bowerrc"
+    bower_gist_uri="https://gist.githubusercontent.com/alexhernandez/c3b0d97538f5869d7f86/raw/8411a064facde1ea007585471f7683a0d546e2eb/.bowerrc"
+    ${CURL} -os ${bower_gist_uri} > ${bower_file}
+    echo "Your ${bower_file} was created successfully!"
 
-${CURL} -s ${master_template_gist_uri} > ./resources/views/layouts/${master_template_file}
-echo "Your ${master_template_file} was created successfully!"
+    # Create "elixir.json" file
+    elixir_file="elixir.json"
+    elixir_gist_uri="https://gist.githubusercontent.com/alexhernandez/963c188f23e14e33929e/raw/a692c7ba6a911292d7d17875dde8c482b22c08a8/elixir.json"
+    ${CURL} -os ${elixir_gist_uri} > ${elixir_file}
+    echo "Your ${elixir_file} was created successfully!"
 
-# Create ".bowerrc" file
-# Curl Gist "https://gist.githubusercontent.com/alexhernandez/c3b0d97538f5869d7f86/raw/8411a064facde1ea007585471f7683a0d546e2eb/.bowerrc"
-bower_file=".bowerrc"
-bower_gist_uri="https://gist.githubusercontent.com/alexhernandez/c3b0d97538f5869d7f86/raw/8411a064facde1ea007585471f7683a0d546e2eb/.bowerrc"
+    # Create "Gulpfile" file
+    gulp_file="gulpfile.js"
+    gulp_gist_uri="https://gist.githubusercontent.com/alexhernandez/42df05909d0dbb727ce2/raw/8d52543e942a6191b8e0b0953451e6a565c278fd/gulpfile.js"
+    ${CURL} -os ${gulp_gist_uri} > ${gulp_file}
+    echo "Your ${gulp_file} was updated successfully!"
 
-${CURL} -os ${bower_gist_uri} > ${bower_file}
-echo "Your ${bower_file} was created successfully!"
+    # Add Form/HTML Facade & update config/app.php
+    composer_package="illuminate/html"
+    printf "\n"
+    echo "Fetching '${composer_package}'..."
+    ${COMPOSER} require ${composer_package}
+    echo "Your composer package '${composer_package}' was added successfully!"
 
-# Create "elixir.json" file
-# Curl Gist "https://gist.githubusercontent.com/alexhernandez/963c188f23e14e33929e/raw/a692c7ba6a911292d7d17875dde8c482b22c08a8/elixir.json"
-elixir_file="elixir.json"
-elixir_gist_uri="https://gist.githubusercontent.com/alexhernandez/963c188f23e14e33929e/raw/a692c7ba6a911292d7d17875dde8c482b22c08a8/elixir.json"
+    printf "\n"
+    config_app_file="app.php"
+    pushd "config"
+      # NEED BETTER SOLUTION FOR THIS... but it works
+      # Update "Providers" array
+      sed -ie "/'providers'/ a\\
+      \\    Illuminate\\\Html\\\HtmlServiceProvider::class, \\
+      " ${config_app_file}
+      # Update Aliases" array
+      sed -ie "/'aliases'/ a\\
+      \\    'Form'      => Illuminate\\\Html\\\FormFacade::class, \\
+      \\    'HTML'      => Illuminate\\\Html\\\HtmlFacade::class, \\
+      " ${config_app_file}
+      # Kill That Random File thats being Created... WTF???
+      rm "${config_app_file}e"
+      echo "Your ${config_app_file} was updated successfully!"
+    popd
 
-${CURL} -s ${elixir_gist_uri} > ${elixir_file}
-echo "Your ${elixir_file} was created successfully!"
+    # Add Bower to project
+    printf "\n Lets Initialize Bower..."
+    ${BOWER} init
 
-# Create "Gulpfile" file
-# Curl Gist "https://gist.githubusercontent.com/alexhernandez/42df05909d0dbb727ce2/raw/8d52543e942a6191b8e0b0953451e6a565c278fd/gulpfile.js"
-gulp_file="gulpfile.js"
-gulp_gist_uri="https://gist.githubusercontent.com/alexhernandez/42df05909d0dbb727ce2/raw/8d52543e942a6191b8e0b0953451e6a565c278fd/gulpfile.js"
+    # Install all Node Packages, --loglevel silent??? Look into this.
+    printf "\n Now Installing Node Dependancies... \n Hang tight. This might take a bit... \n"
+    ${NPM} install
 
-${CURL} -s ${gulp_gist_uri} > ${gulp_file}
-echo "Your ${gulp_file} was updated successfully!"
-
-# Add Form/HTML Facade & update config/app.php
-# !! Remember to ask Steve how to set default arguments that are nice to have !!
-composer_package="illuminate/html"
-config_app="config/app.php"
-
-${COMPOSER} require ${composer_package}
-echo "Your composer package '${composer_package}' was added successfully!"
-
-# NEED BETTER SOLUTION FOR THIS... but it works
-# Update config/app.php "Providers" + "Aliases"
-sed -ie "/'providers'/ a\\
-\\    Illuminate\\\Html\\\HtmlServiceProvider::class, \\
-" ${config_app}
-
-sed -ie "/'aliases'/ a\\
-\\    'Form'      => Illuminate\\\Html\\\FormFacade::class, \\
-\\    'HTML'      => Illuminate\\\Html\\\HtmlFacade::class, \\
-" ${config_app}
-
-# Kill That Random File thats being Created... BUG???
-rm "${config_app}e"
-
-echo "Your ${config_app} was updated successfully!"
-
-# Install all Node Packages, --loglevel silent??? Look into this.
-${NPM} install
-
-# Add Bower to project
-${BOWER} init
-# foreach all recommended bower package(s)?
-${BOWER} install bootstrap-sass-official --save
-${BOWER} install fontawesome --save
-
-# Take User to Directory of Origin???
-# Not 100% sure if necessary or correct implementation
-popd
+    printf "\n Yo Man... Your Laravel Application Has Been Successfully Bootstrapped! \n Wooooooooooot!!!"
+    break
+    ;;
+  [Nn]* ) :
+    break
+    ;;
+  * )
+    echo "Please answer y or n."
+    ;;
+  esac
+done

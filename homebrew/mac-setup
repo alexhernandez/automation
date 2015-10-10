@@ -4,7 +4,6 @@
 # Mac Configurations & App Management w/ Homebrew + Homebrew Cask
 # v1.0.0
 
-# Getting Started Requirements
 # Resource(s): http://brew.sh, http://caskroom.io
 # Recommendation(s): View each repos USAGE.md for details
 # ===============================================================|
@@ -12,72 +11,114 @@
 # GLOBAL VARS
 RUBY=$(which ruby)
 BREW=$(which brew)
+CURL=$(which curl)
 
-if [[ -z ${RUBY} || -z ${BREW} ]]; then
-  echo "Oh no package(s) are missing!"
+# PACKAGE/DEPENDANCY AVAILABILITY CHECK
+if [[ -z ${RUBY} ]]; then
+  echo "Oh no ruby is missing!"
+  exit 2
+elif [[ -z ${BREW} ]]; then
+  echo "Oh no brew is missing!"
+  exit 2
+elif [[ -z ${CURL} ]]; then
+  echo "Oh no curl is missing!"
   exit 2
 fi
 
 # Homebrew Install
 while true; do
-    read -p "Do you wish to install Homebrew? (y/n) " answer
-    case $answer in
-        [Yy]* ) ${RUBY} -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"; break;;
-        [Nn]* ) break;;
-        * ) echo "Please answer y or n.";;
-    esac
+  read -p "Do you wish to install Homebrew? (y/n) " answer
+  case $answer in
+    [Yy]* )
+      ${RUBY} -e "$(${CURL} -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)";
+      break
+      ;;
+    [Nn]* ) :
+      break
+      ;;
+    * )
+      echo "Please answer y or n."
+      ;;
+  esac
 done
 
 # Homebrew Cask Extension Install
 # Allows for application installation
 while true; do
-    read -p "Do you wish to install Homebrew Cask? (y/n) " answer
-    case $answer in
-        [Yy]* ) ${BREW} install 'caskroom/cask/brew-cask'; break;;
-        [Nn]* ) break;;
-        * ) echo "Please answer y or n.";;
-    esac
+  read -p "Do you wish to install Homebrew Cask? (y/n) " answer
+  case $answer in
+    [Yy]* )
+      ${BREW} install "caskroom/cask/brew-cask";
+      break
+      ;;
+    [Nn]* ) :
+      break
+      ;;
+    * )
+      echo "Please answer y or n."
+      ;;
+  esac
 done
 
 # RECOMMENDED: Update .bash_profile to add app symbolic links in /Applications
 # https://github.com/caskroom/homebrew-cask/blob/master/USAGE.md#options
 while true; do
-    read -p "Do you wish to add symbolic links to /Applications folder? (y/n) " answer
-    case $answer in
-        [Yy]* ) echo 'export HOMEBREW_CASK_OPTS="--appdir=/Applications"' >> ~/.bash_profile
-                echo "Your ~/.bash_profile was updated successfully!"; break;;
-        [Nn]* ) break;;
-        * ) echo "Please answer y or n.";;
-    esac
+  read -p "Do you wish to add symbolic links to /Applications folder? (y/n) " answer
+  case $answer in
+    [Yy]* )
+      echo "export HOMEBREW_CASK_OPTS='--appdir=/Applications'" >> ~/.bash_profile
+      echo "Your ~/.bash_profile was updated successfully!"
+      break
+      ;;
+    [Nn]* ) :
+      break
+      ;;
+    * )
+      echo "Please answer y or n."
+      ;;
+  esac
 done
 
 # Check which recommended taps are missing/install
-TAPS='caskroom/cask homebrew/dupes homebrew/versions caskroom/versions homebrew/bundle homebrew/php'
-# THIS MAY ERROR OUT IF USER DOESNT ADD BREW
+TAPS="caskroom/cask homebrew/dupes homebrew/versions caskroom/versions homebrew/bundle homebrew/php"
 INSTALLED_TAPS=$(${BREW} tap)
 
 for tap in ${TAPS}; do
   if [[ -z $(echo $INSTALLED_TAPS | grep $tap) ]]; then
     read -p "You are missing $tap would you like to add it? (y/n) " answer
     case $answer in
-        [Yy]* ) echo "installing $tap";
-                break;;
-        [Nn]* ) break;;
-        * ) echo "Please answer y or n.";;
+    [Yy]* )
+      echo "Installing $tap..."
+      break
+      ;;
+    [Nn]* ) :
+      break
+      ;;
+    * )
+      echo "Please answer y or n."
+      ;;
     esac
   else
     echo "Looks like $tap is already installed!"
   fi
 done
+
 # Not sure if this is the right place for this.
 echo 'Yo Man... Looks like everything is good... ?'
 
 # Install all binaries and applications listed in Brewfile
 while true; do
-    read -p "Do you wish to import your Brewfile Bundle? (y/n) " answer
-    case $answer in
-        [Yy]* ) echo ${BREW} bundle install; break;;
-        [Nn]* ) break;;
-        * ) echo "Please answer y or n.";;
-    esac
+  read -p "Do you wish to import your Brewfile Bundle? (y/n) " answer
+  case $answer in
+  [Yy]* )
+    echo ${BREW} bundle install
+    break
+    ;;
+  [Nn]* ) :
+    break
+    ;;
+  * )
+    echo "Please answer y or n."
+    ;;
+  esac
 done

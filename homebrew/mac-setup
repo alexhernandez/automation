@@ -25,23 +25,6 @@ elif [[ -z ${CURL} ]]; then
   exit 2
 fi
 
-# Homebrew Install
-while true; do
-  read -p "Do you wish to install Homebrew? (y/n) " answer
-  case $answer in
-    [Yy]* )
-      ${RUBY} -e "$(${CURL} -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)";
-      break
-      ;;
-    [Nn]* ) :
-      break
-      ;;
-    * )
-      echo "Please answer y or n."
-      ;;
-  esac
-done
-
 # Homebrew Cask Extension Install
 # Allows for application installation
 while true; do
@@ -79,16 +62,13 @@ while true; do
   esac
 done
 
-# Check which recommended taps are missing/install
-TAPS="caskroom/cask homebrew/dupes homebrew/versions caskroom/versions homebrew/bundle homebrew/php"
-INSTALLED_TAPS=$(${BREW} tap)
-
-for tap in ${TAPS}; do
-  if [[ -z $(echo $INSTALLED_TAPS | grep $tap) ]]; then
-    read -p "You are missing $tap would you like to add it? (y/n) " answer
-    case $answer in
+# Homebrew Bundle Tap
+# Allows for Brewfile bulk installation
+while true; do
+  read -p "Do you wish to install Homebrew Bundle? (y/n) " answer
+  case $answer in
     [Yy]* )
-      echo "Installing $tap..."
+      ${BREW} tap "homebrew/bundle";
       break
       ;;
     [Nn]* ) :
@@ -97,14 +77,8 @@ for tap in ${TAPS}; do
     * )
       echo "Please answer y or n."
       ;;
-    esac
-  else
-    echo "Looks like $tap is already installed!"
-  fi
+  esac
 done
-
-# Not sure if this is the right place for this.
-echo 'Yo Man... Looks like everything is good... ?'
 
 # Install all binaries and applications listed in Brewfile
 while true; do

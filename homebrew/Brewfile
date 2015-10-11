@@ -30,6 +30,7 @@ brew 'postgresql'
 # Workflow/Productivity
 cask 'alfred'
 cask 'dropbox'
+cask 'google-drive'
 cask 'flux'
 cask 'bettertouchtool'
 cask 'caffeine'
@@ -53,6 +54,7 @@ cask 'sequel-pro'
 cask 'mamp'
 
 # Browsers
+cask 'google-chrome'
 cask 'firefox'
 cask 'opera'
 

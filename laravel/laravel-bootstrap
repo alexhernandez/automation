@@ -123,7 +123,7 @@ while true; do
     # Create "Gulpfile" file
     gulp_file="gulpfile.js"
     gulp_gist_uri="https://gist.githubusercontent.com/alexhernandez/42df05909d0dbb727ce2/raw/8d52543e942a6191b8e0b0953451e6a565c278fd/gulpfile.js"
-    ${CURL} -o "${gulp_file"} ${gulp_gist_uri}
+    ${CURL} -o "${gulp_file}" ${gulp_gist_uri}
     echo "Your ${gulp_file} was updated successfully!"
 
     # Add Form/HTML Facade & update config/app.php
@@ -139,12 +139,12 @@ while true; do
       # NEED BETTER SOLUTION FOR THIS... but it works
       # Update "Providers" array
       sed -ie "/'providers'/ a\\
-      \\    Illuminate\\\Html\\\HtmlServiceProvider::class, \\
+      \\      Illuminate\\\Html\\\HtmlServiceProvider::class, \\
       " ${config_app_file}
       # Update Aliases" array
       sed -ie "/'aliases'/ a\\
-      \\    'Form'      => Illuminate\\\Html\\\FormFacade::class, \\
-      \\    'HTML'      => Illuminate\\\Html\\\HtmlFacade::class, \\
+      \\      'Form'      => Illuminate\\\Html\\\FormFacade::class, \\
+      \\      'HTML'      => Illuminate\\\Html\\\HtmlFacade::class, \\
       " ${config_app_file}
       # Kill That Random File thats being Created... WTF???
       rm "${config_app_file}e"

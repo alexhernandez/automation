@@ -7,6 +7,7 @@
   [
     "AdvancedNewFile",
     "Alignment",
+    "AlignTab",
     "Autoprefixer",
     "Blade Snippets",
     "Bootstrap 3 Snippets",
@@ -20,11 +21,12 @@
     "Laravel 4 Snippets",
     "Laravel Blade Highlighter",
     "Material Theme",
+    "MultiEditUtils",
     "Nettuts+ Fetch",
     "Package Control",
     "Sass",
+    "SASS Snippets",
     "SideBarEnhancements",
-    "Theme - Spacegray",
     "Vue Syntax Highlight",
     "WordPress"
   ]

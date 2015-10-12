@@ -77,7 +77,7 @@ while true; do
       pushd "resources/views/pages"
         page_template_file="landing.blade.php"
         page_template_gist_uri="https://gist.githubusercontent.com/alexhernandez/486a758fdcac73e27687/raw/7049dbe66ac814038227cccc7f3d1b6f89c5a4a6/page.blade.php"
-        ${CURL} -os ${page_template_gist_uri} > ${page_template_file}
+        ${CURL} -o "${page_template_file}" ${page_template_gist_uri}
       popd
       echo "Your ${page_template_file} was updated successfully!"
 
@@ -86,7 +86,7 @@ while true; do
         mkdir "partials"
         master_template_file="master.blade.php"
         master_template_gist_uri="https://gist.githubusercontent.com/alexhernandez/bc9f4a1994732e15df3d/raw/2d7d31fa89c3d231156e255d58feb05dc294f273/master.blade.php"
-        ${CURL} -os ${master_template_gist_uri} > ${master_template_file}
+        ${CURL} -o "${master_template_gist_uri}" ${master_template_file}
       popd
       printf "\n"
       echo "Your ${master_template_file} was updated successfully!"
@@ -111,19 +111,19 @@ while true; do
     # Create ".bowerrc" file
     bower_file=".bowerrc"
     bower_gist_uri="https://gist.githubusercontent.com/alexhernandez/c3b0d97538f5869d7f86/raw/8411a064facde1ea007585471f7683a0d546e2eb/.bowerrc"
-    ${CURL} -os ${bower_gist_uri} > ${bower_file}
+    ${CURL} -o "${bower_gist_uri}" ${bower_file}
     echo "Your ${bower_file} was created successfully!"
 
     # Create "elixir.json" file
     elixir_file="elixir.json"
     elixir_gist_uri="https://gist.githubusercontent.com/alexhernandez/963c188f23e14e33929e/raw/a692c7ba6a911292d7d17875dde8c482b22c08a8/elixir.json"
-    ${CURL} -os ${elixir_gist_uri} > ${elixir_file}
+    ${CURL} -o "${elixir_gist_uri}" ${elixir_file}
     echo "Your ${elixir_file} was created successfully!"
 
     # Create "Gulpfile" file
     gulp_file="gulpfile.js"
     gulp_gist_uri="https://gist.githubusercontent.com/alexhernandez/42df05909d0dbb727ce2/raw/8d52543e942a6191b8e0b0953451e6a565c278fd/gulpfile.js"
-    ${CURL} -os ${gulp_gist_uri} > ${gulp_file}
+    ${CURL} -o "${gulp_gist_uri}" ${gulp_file}
     echo "Your ${gulp_file} was updated successfully!"
 
     # Add Form/HTML Facade & update config/app.php
@@ -152,7 +152,7 @@ while true; do
     popd
 
     # Add Bower to project
-    printf "\n Lets Initialize Bower..."
+    printf "\n Lets Initialize Bower... \n"
     ${BOWER} init
 
     # Install all Node Packages, --loglevel silent??? Look into this.

@@ -25,7 +25,7 @@ while true; do
     pushd ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/User
       sublime_package_control="Package Control.sublime-settings"
       sublime_package_control_gist_uri="https://gist.githubusercontent.com/alexhernandez/07c91b2134d90815fdd8/raw/b17e78e86e221ab3cb7024caf363bdc3710b08a1/Package%2520Control.sublime-settings"
-      ${CURL} -os ${sublime_package_control_gist_uri} > "test.txt"
+      ${CURL} -o "${sublime_package_control}" ${sublime_package_control_gist_uri}
     popd
     printf "\n"
     echo "Your Package Control.sublime-settings were updated successfully!"

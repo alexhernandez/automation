@@ -105,7 +105,7 @@ done
 
 while true; do
   printf "\n"
-  read -p "Do you wish to add all project dependancies? (Y/n) " answer
+  read -p "Do you wish to add all project dependencies? (Y/n) " answer
   case $answer in
   [Yy]* )
     # Create ".bowerrc" file

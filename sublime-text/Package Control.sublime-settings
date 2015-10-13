@@ -1,0 +1,32 @@
+{
+  "bootstrapped": true,
+  "in_process_packages":
+  [
+  ],
+  "installed_packages":
+  [
+    "AdvancedNewFile",
+    "Alignment",
+    "AlignTab",
+    "Autoprefixer",
+    "Blade Snippets",
+    "Bootstrap 3 Snippets",
+    "DocBlockr",
+    "EditorConfig",
+    "Emmet",
+    "Emmet Css Snippets",
+    "Gist",
+    "Git-StatusBar",
+    "jQuery",
+    "Laravel 4 Snippets",
+    "Laravel Blade Highlighter",
+    "Material Theme",
+    "Nettuts+ Fetch",
+    "Package Control",
+    "Sass",
+    "SASS Snippets",
+    "SideBarEnhancements",
+    "Vue Syntax Highlight",
+    "WordPress"
+  ]
+}

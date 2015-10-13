@@ -1,0 +1,85 @@
+# Hombrew
+tap 'homebrew/dupes'
+tap 'homebrew/bundle'
+tap 'homebrew/versions'
+tap 'homebrew/php'
+
+# Homebrew Cask
+brew 'caskroom/cask/brew-cask'
+tap 'caskroom/cask'
+tap 'caskroom/versions'
+
+# Dependencies/Libraries/Packages
+brew 'git'
+brew 'node'
+brew 'homebrew/php/php56'
+brew 'homebrew/php/php56-mcrypt'
+brew 'homebrew/php/composer'
+
+# Optional/Team Suggestions
+brew 'mackup'
+brew 'openssl'
+brew 'tree'
+brew 'unar'
+brew 'wget'
+brew 'redis'
+brew 'mysql'
+brew 'phpunit'
+brew 'postgresql'
+
+# Workflow/Productivity
+cask 'alfred'
+cask 'dropbox'
+cask 'google-drive'
+cask 'flux'
+cask 'bettertouchtool'
+cask 'caffeine'
+cask 'cheatsheet'
+
+# Design
+cask 'skitch'
+cask 'sketch'
+cask 'sketch-toolbox'
+cask 'adobe-creative-cloud'
+
+# Development
+cask 'virtualbox'
+cask 'vagrant'
+cask 'transmit'
+cask 'tower'
+cask 'sourcetree'
+cask 'github-desktop'
+cask 'kaleidoscope'
+cask 'sequel-pro'
+cask 'mamp'
+
+# Browsers
+cask 'google-chrome'
+cask 'firefox'
+cask 'opera'
+
+# IDE/Editor/Command-Line
+cask 'iterm2'
+cask 'sublime-text3'
+cask 'atom'
+cask 'phpstorm'
+
+# Communication
+cask 'slack'
+
+# Music
+cask 'sonos'
+cask 'spotify'
+cask 'spotify-notifications'
+
+# Quicklook
+cask 'betterzipql'
+cask 'qlcolorcode'
+cask 'qlimagesize'
+cask 'qlmarkdown'
+cask 'qlprettypatch'
+cask 'qlstephen'
+cask 'quicklook-csv'
+cask 'quicklook-json'
+cask 'webpquicklook'
+cask 'suspicious-package'

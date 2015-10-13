@@ -1,124 +1,194 @@
 #!/bin/bash
 
+# Alex Hernandez
+# Bootstrapping A Laravel Project
+# v1.0.0
+# ===============================================================|
+
 # GLOBAL VARS
-NPM="npm"
-PHP="php"
-CURL="curl"
-BOWER="bower"
-LARAVEL="laravel"
-COMPOSER="composer"
+NPM=$(which npm)
+PHP=$(which php)
+CURL=$(which curl)
+BOWER=$(which bower)
+COMPOSER=$(which composer)
 
-# CHECKS ARGUMENTS PASSED TO PROGRAM
-# SCRIPT VISION:
-# laravel-bootstrap [$project-name] [$composer-package] [$bower-package]
+# CONSTANTS
+PROJECT_DIR=$(pwd)
 
-# '#' Stores the number of arguments associated w/ command
-if [ $# -eq 0 ] ; then
-	echo "Yo Man... Something went wrong!"
-	echo "Check your syntax. Argument(s) may be missing."
-	exit 1
-elif [ $# -gt 1 ] ; then
-	echo "Yo Man... Relax!"
-	echo "You went a little crazy there with all those arguments."
-	exit 1
-else
-	# SCRIPT ARGUMENTS
-	# !!Remember to ask Steve proper syntax for commands, vars, constants, global vars, etc.!!
-	project_name="$1"
+# PACKAGE/DEPENDANCY AVAILABILITY CHECK
+if [[ -z ${NPM} ]]; then
+  echo "Oh no ruby is missing!"
+  exit 2
+elif [[ -z ${PHP} ]]; then
+  echo "Oh no brew is missing!"
+  exit 2
+elif [[ -z ${CURL} ]]; then
+  echo "Oh no curl is missing!"
+  exit 2
+elif [[ -z ${BOWER} ]]; then
+  echo "Oh no bower is missing!"
+  exit 2
+elif [[ -z ${COMPOSER} ]]; then
+  echo "Oh no composer is missing!"
+  exit 2
+fi
 
-	# Create new laravel (project_name)
-	# !!Remember to ask Steve how to set var defaults!!
-	${LARAVEL} new ${project_name}
+printf "\n"
 
-	# Change directory to (project_name)
-	cd ${project_name}
+# CHECK FOR LARAVEL INSTALL
+if [[ ! -f "${PROJECT_DIR}/artisan" ]]; then
+  printf "Yo Man... Are you in the correct project directory? \nLaravel not found! \n\n"
+  exit 2
+fi
 
-	# Duplicate .env.example to .env
-	cp .env.example .env
-	echo "Your env was created successfully!"
+# LARAVEL BOOTSTRAP FUNCTIONS
+function get_gist() {
+  local _file="$1"
+  local _uri="$2"
 
-	# Create project folder structure
-	mkdir -p ./resources/views/layouts/partials
-	mkdir ./resources/views/pages
-	touch ./resources/views/layouts/master.blade.php
-	touch ./resources/views/pages/landing.blade.php
+  ${CURL} -o "${_file}" "${_uri}"
+  printf "\nYour ${_file} was updated successfully! \n"
+}
 
-		# Update route
-		# sed -Ei "s/welcome/pages\\.landing/g" ./app/Http/routes.php
+function get_composer_package() {
+  local _package="$1"
 
-	echo "Your project folders & files were created successfully!"
+  printf "\nFetching '${_package}'... \n"
+  ${COMPOSER} require ${_package}
+  printf "Composer '${_package}' was added successfully! \n"
+}
 
-	# !!! NEED TO FIGURE OUT HOW TO HANDLE !!!
-	# !!! FAILURES/ERRORS IN CURL REQUESTS !!!
-	# ...but it works
+# CREATE ENV + APP:KEY
+while true; do
+  read -p "Do you wish to add a '.env' file (Y/n)? " _answer
+  # Set default for NULL or UNSET
+  # http://www.network-theory.co.uk/docs/bashref/ShellParameterExpansion.html
+  case ${_answer:-y} in
+  [Yy]* )
+    _env=true
+    break
+    ;;
+  [Nn]* )
+    _env=false
+    break
+    ;;
+  * )
+    printf "Please answer y or n. \n"
+    ;;
+  esac
+done
 
-	# Create "master.blade.php" file
-	# Curl Gist "https://gist.githubusercontent.com/alexhernandez/bc9f4a1994732e15df3d/raw/2d7d31fa89c3d231156e255d58feb05dc294f273/master.blade.php"
-	master_template_file="master.blade.php"
-	master_template_gist_uri="https://gist.githubusercontent.com/alexhernandez/bc9f4a1994732e15df3d/raw/2d7d31fa89c3d231156e255d58feb05dc294f273/master.blade.php"
-		
-		${CURL} -s ${master_template_gist_uri} > ./resources/views/layouts/${master_template_file}
-		echo "Your ${master_template_file} was created successfully!"
+if [[ ${_env} == true ]]; then
+  cp .env.example .env
+  printf "\nYour env was updated successfully! \n"
+  ${PHP} artisan key:generate
+fi
 
-	# Create ".bowerrc" file
-	# Curl Gist "https://gist.githubusercontent.com/alexhernandez/c3b0d97538f5869d7f86/raw/8411a064facde1ea007585471f7683a0d546e2eb/.bowerrc"
-	bower_file=".bowerrc"
-	bower_gist_uri="https://gist.githubusercontent.com/alexhernandez/c3b0d97538f5869d7f86/raw/8411a064facde1ea007585471f7683a0d546e2eb/.bowerrc"
-		
-		${CURL} -s ${bower_gist_uri} > ${bower_file}
-		echo "Your ${bower_file} was created successfully!"
+printf "\n"
 
-	# Create "elixir.json" file
-	# Curl Gist "https://gist.githubusercontent.com/alexhernandez/963c188f23e14e33929e/raw/a692c7ba6a911292d7d17875dde8c482b22c08a8/elixir.json"
-	elixir_file="elixir.json"
-	elixir_gist_uri="https://gist.githubusercontent.com/alexhernandez/963c188f23e14e33929e/raw/a692c7ba6a911292d7d17875dde8c482b22c08a8/elixir.json"
+# CREATE LARAVEL VIEW DIRECTORIES
+while true; do
+  read -p "Do you wish to create the view directories? (Y/n) " _answer
+  case ${_answer:-y} in
+  [Yy]* )
+    _view_dirs=true
+    break
+    ;;
+  [Nn]* )
+    _view_dirs=false
+    break
+    ;;
+  * )
+    printf "Please answer y or n. \n"
+    ;;
+  esac
+done
 
-		${CURL} -s ${elixir_gist_uri} > ${elixir_file}
-		echo "Your ${elixir_file} was created successfully!"
+if [[ ${_view_dirs} == true ]]; then
+  mkdir "resources/views/pages"
+  _page_template_file="landing.blade.php"
+  _page_template_gist_uri="https://gist.githubusercontent.com/alexhernandez/486a758fdcac73e27687/raw/7049dbe66ac814038227cccc7f3d1b6f89c5a4a6/page.blade.php"
 
-	# Create "Gulpfile" file
-	# Curl Gist "https://gist.githubusercontent.com/alexhernandez/42df05909d0dbb727ce2/raw/8d52543e942a6191b8e0b0953451e6a565c278fd/gulpfile.js"
-	gulp_file="gulpfile.js"
-	gulp_gist_uri="https://gist.githubusercontent.com/alexhernandez/42df05909d0dbb727ce2/raw/8d52543e942a6191b8e0b0953451e6a565c278fd/gulpfile.js"
+  pushd "resources/views/pages"
+    get_gist "${_page_template_file}" "${_page_template_gist_uri}"
+  popd
 
-		${CURL} -s ${gulp_gist_uri} > ${gulp_file}
-		echo "Your ${gulp_file} was updated successfully!"
+  mkdir -p "resources/views/layouts/partials"
+  _master_template_file="master.blade.php"
+  _master_template_gist_uri="https://gist.githubusercontent.com/alexhernandez/bc9f4a1994732e15df3d/raw/2d7d31fa89c3d231156e255d58feb05dc294f273/master.blade.php"
 
-	# Generate Laravel Install App Key
-	${PHP} artisan key:generate
+  pushd "resources/views/layouts"
+    get_gist "${_master_template_file}" "${_master_template_gist_uri}"
+  popd
+fi
 
-	# Add Form/HTML Facade & update config/app.php
-	# !! Remember to ask Steve how to set default arguments that are nice to have !!
-	composer_package="illuminate/html"
-	config_app="./config/app.php"
-		
-		${COMPOSER} require ${composer_package}
-		echo "Your composer package '${composer_package}' was added successfully!"
+printf "\n"
 
-		# NEED BETTER SOLUTION FOR THIS... but it works
-		# Update config/app.php "Providers" + "Aliases"
-		sed -ie "/'providers'/ a\\
-		\\		Illuminate\\\Html\\\HtmlServiceProvider::class, \\
-		"	${config_app}
+# ADD DEPENDENCIES
+while true; do
+  read -p "Do you wish to add all project dependencies? (Y/n) " _answer
+  case ${_answer:-y} in
+  [Yy]* )
+    _dependencies=true
+    break
+    ;;
+  [Nn]* )
+    _dependencies=false
+    break
+    ;;
+  * )
+    printf "Please answer y or n. \n"
+    ;;
+  esac
+done
 
-		sed -ie "/'aliases'/ a\\
-		\\		'Form'	    => Illuminate\\\Html\\\FormFacade::class, \\
-		\\		'HTML'	    => Illuminate\\\Html\\\HtmlFacade::class, \\
-		"	${config_app}
+if [[ ${_dependencies} == true ]]; then
+  # Create ".bowerrc" file
+  _bower_file=".bowerrc"
+  _bower_gist_uri="https://gist.githubusercontent.com/alexhernandez/c3b0d97538f5869d7f86/raw/8411a064facde1ea007585471f7683a0d546e2eb/.bowerrc"
+  get_gist "${_bower_file}" "${_bower_gist_uri}"
 
-		# Kill That Random File Created...
-		rm "${config_app}e"
+  # Create "elixir.json" file
+  _elixir_file="elixir.json"
+  _elixir_gist_uri="https://gist.githubusercontent.com/alexhernandez/963c188f23e14e33929e/raw/a692c7ba6a911292d7d17875dde8c482b22c08a8/elixir.json"
+  get_gist "${_elixir_file}" "${_elixir_gist_uri}"
 
-		echo "Your ${config_app} was updated successfully!"
+  # Create "Gulpfile" file
+  _gulp_file="gulpfile.js"
+  _gulp_gist_uri="https://gist.githubusercontent.com/alexhernandez/42df05909d0dbb727ce2/raw/8d52543e942a6191b8e0b0953451e6a565c278fd/gulpfile.js"
+  get_gist "${_gulp_file}" "${_gulp_gist_uri}"
 
-	# Install all Node Packages, --loglevel silent?
-	${NPM} install
+  # Fetch Form/HTML Facade
+  _composer_package="illuminate/html"
+  get_composer_package "${_composer_package}"
 
-	# Integrate Bower
-	${BOWER} init
-		# foreach bower package?
-		${BOWER} install bootstrap-sass-official --save
-		${BOWER} install fontawesome --save
-		# endforeach
-    exit 1
+  # Update config/app.php
+  printf "\n"
+  config_app_file="app.php"
+  pushd "config"
+
+    # Update "Providers" array
+    sed -i .tmp "/'providers'/ a\\
+    \\         Illuminate\\\Html\\\HtmlServiceProvider::class, \\
+    " ${config_app_file}
+
+    # Update Aliases" array
+    sed -i .tmp "/'aliases'/ a\\
+    \\         'Form'      => Illuminate\\\Html\\\FormFacade::class, \\
+    \\         'HTML'      => Illuminate\\\Html\\\HtmlFacade::class, \\
+    " ${config_app_file}
+
+    # Remove .tmp files
+    rm "${config_app_file}.tmp"
+    printf "Your ${config_app_file} was updated successfully!"
+  popd
+
+  # Add Bower to project
+  printf "\nLets Initialize Bower... \n"
+  ${BOWER} init
+
+  # Install all Node Packages, --loglevel silent??? Look into this.
+  printf "\nNow installing Node dependencies... \n Hang tight. This might take a bit... \n"
+  ${NPM} install
+  printf "\nYo Man... Your Laravel Application Has Been Successfully Bootstrapped! \n Wooooooooooot!!!"
 fi

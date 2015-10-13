@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# Alex Hernandez
+# Mac Configurations & App Management w/ Homebrew + Homebrew Cask
+# v1.0.0
+
+# Resource(s): http://brew.sh, http://caskroom.io
+# Recommendation(s): View each repos USAGE.md for details
+# ===============================================================|
+
+# GLOBAL VARS
+RUBY=$(which ruby)
+BREW=$(which brew)
+
+# CONSTANTS
+PROJECT_DIR=$(pwd)
+
+# PACKAGE/DEPENDANCY AVAILABILITY CHECK
+if [[ -z ${RUBY} ]]; then
+  echo "Oh no ruby is missing!"
+  exit 2
+elif [[ -z ${BREW} ]]; then
+  echo "Oh no brew is missing!"
+  exit 2
+fi
+
+# ADD HOMEBREW CASK
+while true; do
+  read -p "Do you wish to install Homebrew Cask? (Y/n) " _answer
+  case ${_answer:-y} in
+  [Yy]* )
+    _install_cask=true
+    break
+    ;;
+  [Nn]* )
+    _install_cask=false
+    break
+    ;;
+  * )
+    printf "Please answer y or n. \n"
+    ;;
+  esac
+done
+
+if [[ ${_install_cask} == true ]]; then
+  ${BREW} install "caskroom/cask/brew-cask";
+fi
+
+# OPTIONAL: Update .bash_profile to add app symbolic links in /Applications
+# https://github.com/caskroom/homebrew-cask/blob/master/USAGE.md#option
+while true; do
+  read -p "Do you wish to add symbolic links to /Applications folder? (y/N) " _answer
+  case ${_answer:-n} in
+  [Yy]* )
+    _sym_links=true
+    break
+    ;;
+  [Nn]* )
+    _sym_links=false
+    break
+    ;;
+  * )
+    printf "Please answer y or n. \n"
+    ;;
+  esac
+done
+
+if [[ ${_sym_links} == true ]]; then
+  echo "export HOMEBREW_CASK_OPTS='--appdir=/Applications'" >> ~/.bash_profile
+  echo "Your ~/.bash_profile was updated successfully!"
+fi
+
+# Homebrew Bundle Tap
+# Allows for Brewfile bulk installation
+while true; do
+  read -p "Do you wish to install Homebrew Bundle? (Y/n) " _answer
+  case ${_answer:-y} in
+  [Yy]* )
+    _bundle=true
+    break
+    ;;
+  [Nn]* )
+    _bundle=false
+    break
+    ;;
+  * )
+    printf "Please answer y or n. \n"
+    ;;
+  esac
+done
+
+if [[ ${_bundle} == true ]]; then
+  ${BREW} tap "homebrew/bundle";
+else
+  exit 1
+fi
+
+# Install all binaries and applications listed in Brewfile
+while true; do
+  read -p "Do you wish to import your Brewfile Bundle? (Y/n) " _answer
+  case ${_answer:-y} in
+  [Yy]* )
+    _brewfile=true
+    break
+    ;;
+  [Nn]* )
+    _brewfile=false
+    break
+    ;;
+  * )
+    printf "Please answer y or n. \n"
+    ;;
+  esac
+done
+
+if [[ ${_brewfile} == true && -f "${PROJECT_DIR}/Brewfile" ]]; then
+  ${BREW} bundle install
+else
+  printf "Yo Man... Are you in the correct directory? \nBrewfile not found! \n\n"
+  exit 2
+fi

@@ -1,12 +1,16 @@
 # Automation
-Hassle Free Setup of Your Mac Binaries, Applications, Projects and Plugins
+Hassle Free Setup of Your Mac Binaries, Applications, Projects and Plugins.
 
 ## Getting Started
 
-Create an alias for the desired script:
+Clone the repo URI `git clone https://github.com/csun-metalab/automation.git`
+Create an alias for the desired script in your `~/.bash_profile`
 
 ```bash
-alias laravel-bootstrap=~/path/to/script/laravel/bootstrap
+# Add To .bash_profile
+alias laravel-bootstrap=~/path/to/script/laravel-bootstrap
 ```
-Restart your command line and execute the script w/ `laravel-bootstrap`.
-Thats it!
+Restart OR source your command-line with `source ~/.bash_profile`
+Run the script with `laravel-bootstrap`
+
+Thats A Wrap!

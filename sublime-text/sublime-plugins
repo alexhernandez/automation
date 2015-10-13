@@ -3,7 +3,8 @@
 # Alex Hernandez
 # Installing Sublime Text 3 Packages
 # v1.0.0
-
+# ===============================================================|
+#
 # GLOBAL VARS
 SUBL=$(which subl)
 CURL=$(which curl)
@@ -17,26 +18,40 @@ elif [[ -z ${CURL} ]]; then
   exit 2
 fi
 
+# LARAVEL BOOTSTRAP FUNCTIONS
+function get_gist() {
+  local _file="$1"
+  local _uri="$2"
+
+  ${CURL} -o "${_file}" "${_uri}"
+  printf "\nYour ${_file} was updated successfully! \n"
+}
+
+# ADD SUBLIME PACKAGES
 while true; do
-  printf "\n"
-  read -p "Do you wish to add recommended Sublime Text 3 Packages? (Y/n) " answer
-  case $answer in
+  read -p "Do you wish to add recommended Sublime Text 3 Packages? (Y/n) " _answer
+  case ${_answer:-y} in
   [Yy]* )
-    pushd ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/User
-      sublime_package_file="Package Control.sublime-settings"
-      sublime_package_gist_uri="https://gist.githubusercontent.com/alexhernandez/07c91b2134d90815fdd8/raw/b17e78e86e221ab3cb7024caf363bdc3710b08a1/Package%2520Control.sublime-settings"
-      ${CURL} -o "${sublime_package_file}" ${sublime_package_gist_uri}
-    popd
-    printf "\n"
-    echo "Your Package Control.sublime-settings were updated successfully!"
-    echo "Restart Sublime Text!"
+    _packages=true
     break
     ;;
-  [Nn]* ) :
+  [Nn]* )
+    _packages=false
     break
     ;;
   * )
-    echo "Please answer y or n."
+    printf "Please answer y or n. \n"
     ;;
   esac
 done
+
+if [[ ${_packages} == true ]]; then
+  pushd ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/User
+    _sublime_package_file="Package Control.sublime-settings"
+    _sublime_package_gist_uri="https://gist.githubusercontent.com/alexhernandez/07c91b2134d90815fdd8/raw/b17e78e86e221ab3cb7024caf363bdc3710b08a1/Package%2520Control.sublime-settings"
+    get_gist "${_sublime_package_file}" "${_sublime_package_gist_uri}"
+  popd
+  printf "\nYour Package Control.sublime-settings were updated successfully! \nRestart Sublime Text!\n"
+else
+  exit 1
+fi

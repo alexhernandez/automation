@@ -17,10 +17,10 @@ PROJECT_DIR=$(pwd)
 
 # PACKAGE/DEPENDANCY AVAILABILITY CHECK
 if [[ -z ${NPM} ]]; then
-  echo "Oh no ruby is missing!"
+  echo "Oh no npm is missing!"
   exit 2
 elif [[ -z ${PHP} ]]; then
-  echo "Oh no brew is missing!"
+  echo "Oh no php is missing!"
   exit 2
 elif [[ -z ${CURL} ]]; then
   echo "Oh no curl is missing!"

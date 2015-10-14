@@ -1,6 +1,13 @@
 # META+Automation
 Hassle Free Setup of Your Mac Binaries, Applications, Projects and Plugins.
 
+## Table of Contents
+- [Quick Start Guide](https://github.com/csun-metalab/automation#quick-start-guide)
+- [Laravel: Bootstrap Front-End](https://github.com/csun-metalab/automation#laravel-bootstrap-front-end)
+- [Mac Application Setup](https://github.com/csun-metalab/automation#mac-application-setup)
+- [Sublime Plugins](https://github.com/csun-metalab/automation#sublime-plugins)
+- [Dependencies](https://github.com/csun-metalab/automation#dependencies)
+
 ## Quick Start Guide:
 
 1. Clone the repo URI `git clone https://github.com/csun-metalab/automation.git`
@@ -51,7 +58,7 @@ Create a new Laravel project w/ `laravel new <project-name>` followed by `larave
   alias sublime-plugins=~/path/to/script/sublime-plugins
 ```
 
-## Adding Dependencies
+## Dependencies
 
 Before you get started you may also need to add the following:
 

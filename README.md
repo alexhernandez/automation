@@ -1,23 +1,60 @@
 # META+Automation
 Hassle Free Setup of Your Mac Binaries, Applications, Projects and Plugins.
 
-## Getting Started
+## Quick Start Guide:
 
-*  Clone the repo URI `git clone https://github.com/csun-metalab/automation.git`
-*  Create an alias for the desired script in your `~/.bash_profile`
+1. Clone the repo URI `git clone https://github.com/csun-metalab/automation.git`
+2. Create an alias with the path to desired script in `~/.bash_profile`
+3. Restart OR source command-line with `source ~/.bash_profile`
+4. Run the desired script (ex. `laravel-bootstrap`, `mac-setup`, or `sublime-plugins`)
+
+## Laravel: Bootstrap Front-End
+Update your `~/.bash_profile`:
 
 ```bash
   # Add to your .bash_profile
   alias laravel-bootstrap=~/path/to/script/laravel-bootstrap
 ```
-* Restart OR source your command-line with `source ~/.bash_profile`
-* Run the script with `laravel-bootstrap`
 
-Thats A Wrap!
+Create a new laravel project w/ `laravel new <project-name>` and run `laravel-bootstrap`. The following can be added to your project.
+
+```bash
+  Laravel Project
+  ├── .bowerrc
+  ├── bower.json
+  ├── elixir.json
+  ├── gulpfile.js
+  ├── node_modues
+  │   ├── gulp
+  │   └── laravel-elixir
+  ├── resources
+  │   └── views
+  │       ├── layouts
+  │       │   ├── master.blade.php
+  │       │   └── partials
+  │       └── pages
+  │           └── landing.blade.php
+  └── vendor
+      └── bower_components
+```
+
+## Mac Application Setup
+
+```bash
+  # Add to your .bash_profile
+  alias mac-setup=~/path/to/script/mac-setup
+```
+
+## Sublime Text Plugins
+
+```bash
+  # Add to your .bash_profile
+  alias sublime-plugins=~/path/to/script/sublime-plugins
+```
 
 ## Adding Dependencies
 
-Before you get started you may need to add the following:
+Before you get started you may also need to add the following:
 
 ```bash
   # Adding Homebrew
@@ -36,5 +73,3 @@ Before you get started you may need to add the following:
   $ curl -sS https://getcomposer.org/installer | php
   $ mv composer.phar /usr/local/bin/composer
 ```
-
-Thats A Wrap!

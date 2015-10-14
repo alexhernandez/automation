@@ -5,7 +5,7 @@ Hassle Free Setup of Your Mac Binaries, Applications, Projects and Plugins.
 - [Quick Start Guide](https://github.com/csun-metalab/automation#quick-start-guide)
 - [Laravel: Bootstrap Front-End](https://github.com/csun-metalab/automation#laravel-bootstrap-front-end)
 - [Mac Application Setup](https://github.com/csun-metalab/automation#mac-application-setup)
-- [Sublime Plugins](https://github.com/csun-metalab/automation#sublime-plugins)
+- [Sublime Text Plugins](https://github.com/csun-metalab/automation#sublime-text-plugins)
 - [Dependencies](https://github.com/csun-metalab/automation#dependencies)
 
 ## Quick Start Guide:

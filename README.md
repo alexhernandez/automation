@@ -9,14 +9,13 @@ Hassle Free Setup of Your Mac Binaries, Applications, Projects and Plugins.
 4. Run the desired script (ex. `laravel-bootstrap`, `mac-setup`, or `sublime-plugins`)
 
 ## Laravel: Bootstrap Front-End
-Update your `~/.bash_profile`:
+Update your `~/.bash_profile` with the following:
 
 ```bash
-  # Add to your .bash_profile
   alias laravel-bootstrap=~/path/to/script/laravel-bootstrap
 ```
 
-Create a new laravel project w/ `laravel new <project-name>` and run `laravel-bootstrap`. The following can be added to your project.
+Create a new Laravel project w/ `laravel new <project-name>` followed by `laravel-bootstrap`. The following can now be automatically added to your Laravel project.
 
 ```bash
   Laravel Project

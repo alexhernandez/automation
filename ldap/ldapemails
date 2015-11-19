@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Alex Hernandez
+# FETCH PEOPLE INFORMATION
+# v1.0.0
+# ===============================================================|
+
+# LDAP Information
+LDAP_URL="ldaps://sdir.csun.edu/"
+LDAP_DN="cn=Pioneering,ou=proxies,ou=auth,o=csun"
+LDAP_BASE="o=csun"
+LDAP_PASS=""
+
+LIST_FILE="people-email.txt"
+FILTER="(maillocaladdress=%s)"
+RETRIEVE_BY="displayName"
+
+ldapsearch -LLL -H "${LDAP_URL}" -D "${LDAP_DN}" -b "${LDAP_BASE}" -w "${LDAP_PASS}" -x \
+  -f ${LIST_FILE} "${FILTER}" ${RETRIEVE_BY}
+exit 0

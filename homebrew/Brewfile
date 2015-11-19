@@ -17,15 +17,10 @@ brew 'homebrew/php/php56-mcrypt'
 brew 'homebrew/php/composer'
 
 # Optional/Team Suggestions
-brew 'mackup'
 brew 'openssl'
 brew 'tree'
-brew 'unar'
 brew 'wget'
-brew 'redis'
 brew 'mysql'
-brew 'phpunit'
-brew 'postgresql'
 
 # Workflow/Productivity
 cask 'alfred'
@@ -49,12 +44,9 @@ cask 'transmit'
 cask 'tower'
 cask 'sourcetree'
 cask 'github-desktop'
-cask 'kaleidoscope'
-cask 'sequel-pro'
 cask 'mamp'
 
 # Browsers
-cask 'google-chrome'
 cask 'firefox'
 cask 'opera'
 
@@ -72,7 +64,7 @@ cask 'sonos'
 cask 'spotify'
 cask 'spotify-notifications'
 
-# Quicklook
+# Quicklook Improvements
 cask 'betterzipql'
 cask 'qlcolorcode'
 cask 'qlimagesize'

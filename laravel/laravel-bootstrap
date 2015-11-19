@@ -120,6 +120,13 @@ if [[ ${_view_dirs} == true ]]; then
   pushd "resources/views/layouts"
     get_gist "${_master_template_file}" "${_master_template_gist_uri}"
   popd
+
+  pushd "resources/views/layouts/partials"
+    touch "nav.blade.php"
+    touch "header.blade.php"
+    touch "footer.blade.php"
+    printf "\nYour partials were updated successfully! \n"
+  popd
 fi
 
 printf "\n"
@@ -184,11 +191,15 @@ if [[ ${_dependencies} == true ]]; then
   popd
 
   # Add Bower to project
+  # Create "bower.json" file
   printf "\nLets Initialize Bower... \n"
-  ${BOWER} init
+    _bower_file="bower.json"
+    _bower_gist_uri="https://gist.githubusercontent.com/alexhernandez/bb21151902015a55d892/raw/2ce0791f347cb2c9ce3ca91304f1f322af248701/bower.json"
+    get_gist "${_bower_file}" "${_bower_gist_uri}"
 
   # Install all Node Packages, --loglevel silent??? Look into this.
-  printf "\nNow installing Node dependencies... \n Hang tight. This might take a bit... \n"
+  printf "\nNow installing Node dependencies... \n Hang tight. This might take a bit... \n\n"
   ${NPM} install
   printf "\nYo Man... Your Laravel Application Has Been Successfully Bootstrapped! \n Wooooooooooot!!!"
+  echo ""
 fi

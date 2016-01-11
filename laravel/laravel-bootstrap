@@ -166,7 +166,7 @@ if [[ ${_dependencies} == true ]]; then
   get_gist "${_gulp_file}" "${_gulp_gist_uri}"
 
   # Fetch Form/HTML Facade
-  _composer_package="illuminate/html"
+  _composer_package="laravelcollective/html"
   get_composer_package "${_composer_package}"
 
   # Update config/app.php
@@ -176,13 +176,13 @@ if [[ ${_dependencies} == true ]]; then
 
     # Update "Providers" array
     sed -i .tmp "/'providers'/ a\\
-    \\         Illuminate\\\Html\\\HtmlServiceProvider::class, \\
+    \\         Collective\\\Html\\\HtmlServiceProvider::class, \\
     " ${config_app_file}
 
     # Update Aliases" array
     sed -i .tmp "/'aliases'/ a\\
-    \\         'Form'      => Illuminate\\\Html\\\FormFacade::class, \\
-    \\         'HTML'      => Illuminate\\\Html\\\HtmlFacade::class, \\
+    \\         'Form'      => Collective\\\Html\\\FormFacade::class, \\
+    \\         'HTML'      => Collective\\\Html\\\HtmlFacade::class, \\
     " ${config_app_file}
 
     # Remove .tmp files

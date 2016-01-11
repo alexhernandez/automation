@@ -88,7 +88,7 @@ printf "\n"
 
 # CREATE LARAVEL VIEW DIRECTORIES
 while true; do
-  read -p "Do you wish to create the view directories? (Y/n) " _answer
+  read -p "Do you wish to create master & partial views? (Y/n) " _answer
   case ${_answer:-y} in
   [Yy]* )
     _view_dirs=true
@@ -133,7 +133,7 @@ printf "\n"
 
 # ADD DEPENDENCIES
 while true; do
-  read -p "Do you wish to add all project dependencies? (Y/n) " _answer
+  read -p "Do you wish to add all project dependencies (bower,elixir,gulpfile,etc.) ? (Y/n) " _answer
   case ${_answer:-y} in
   [Yy]* )
     _dependencies=true

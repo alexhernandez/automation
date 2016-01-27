@@ -19,7 +19,7 @@ Hassle Free Setup of Your Mac Binaries, Applications, Projects and Plugins.
 Update your `~/.bash_profile` with the following:
 
 ```bash
-  alias laravel-bootstrap=~/path/to/script/laravel-bootstrap
+  alias laravel-bootstrap=~/path/to/script/automation/laravel/laravel-bootstrap
 ```
 
 Create a new Laravel project w/ `laravel new <project-name>` followed by `laravel-bootstrap`. The following can now be automatically added to your Laravel project.

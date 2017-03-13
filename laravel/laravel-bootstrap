@@ -12,34 +12,45 @@ CURL=$(which curl)
 BOWER=$(which bower)
 COMPOSER=$(which composer)
 
+# APPLICATION EXIT CODES
+E_NOERROR=0
+E_DEPENDENCY=89
+
 # CONSTANTS
 PROJECT_DIR=$(pwd)
 
-# PACKAGE/DEPENDANCY AVAILABILITY CHECK
-if [[ -z ${NPM} ]]; then
-  echo "Oh no npm is missing!"
-  exit 2
-elif [[ -z ${PHP} ]]; then
-  echo "Oh no php is missing!"
-  exit 2
-elif [[ -z ${CURL} ]]; then
-  echo "Oh no curl is missing!"
-  exit 2
-elif [[ -z ${BOWER} ]]; then
-  echo "Oh no bower is missing!"
-  exit 2
-elif [[ -z ${COMPOSER} ]]; then
-  echo "Oh no composer is missing!"
-  exit 2
-fi
+# Asks a Y/n question of the user and provides the result as a boolean
+#
+# Example usage:
+# retval=$(ask_question "Would you like to do something")
+function ask_question() {
+  local _question="$1"
 
-printf "\n"
-
-# CHECK FOR LARAVEL INSTALL
-if [[ ! -f "${PROJECT_DIR}/artisan" ]]; then
-  printf "Yo Man... Are you in the correct project directory? \nLaravel not found! \n\n"
-  exit 2
-fi
+  while true; do
+    read -p "$_question (Y/n)? " _answer
+    # Set default for NULL or UNSET
+    # http://www.network-theory.co.uk/docs/bashref/ShellParameterExpansion.html
+    case ${_answer:-y} in
+    [Yy]* )
+      # Function called as $(ask_question "question") so return value can be
+      # captured using command substitution
+      _retval=true
+      echo $_retval
+      break
+      ;;
+    [Nn]* )
+      # Function called as $(ask_question "question") so return value can be
+      # captured using command substitution
+      _retval=false
+      echo $_retval
+      break
+      ;;
+    * )
+      printf "Please answer y or n. \n"
+      ;;
+    esac
+  done
+}
 
 # LARAVEL BOOTSTRAP FUNCTIONS
 function get_gist() {
@@ -58,26 +69,34 @@ function get_composer_package() {
   printf "Composer '${_package}' was added successfully! \n"
 }
 
-# CREATE ENV + APP:KEY
-while true; do
-  read -p "Do you wish to add a '.env' file (Y/n)? " _answer
-  # Set default for NULL or UNSET
-  # http://www.network-theory.co.uk/docs/bashref/ShellParameterExpansion.html
-  case ${_answer:-y} in
-  [Yy]* )
-    _env=true
-    break
-    ;;
-  [Nn]* )
-    _env=false
-    break
-    ;;
-  * )
-    printf "Please answer y or n. \n"
-    ;;
-  esac
-done
+# PACKAGE/DEPENDANCY AVAILABILITY CHECK
+if [[ -z ${NPM} ]]; then
+  echo "Oh no npm is missing!"
+  exit $E_DEPENDENCY
+elif [[ -z ${PHP} ]]; then
+  echo "Oh no php is missing!"
+  exit $E_DEPENDENCY
+elif [[ -z ${CURL} ]]; then
+  echo "Oh no curl is missing!"
+  exit $E_DEPENDENCY
+elif [[ -z ${BOWER} ]]; then
+  echo "Oh no bower is missing!"
+  exit $E_DEPENDENCY
+elif [[ -z ${COMPOSER} ]]; then
+  echo "Oh no composer is missing!"
+  exit $E_DEPENDENCY
+fi
 
+printf "\n"
+
+# CHECK FOR LARAVEL INSTALL
+if [[ ! -f "${PROJECT_DIR}/artisan" ]]; then
+  printf "Yo Man... Are you in the correct project directory? \nLaravel not found! \n\n"
+  exit $E_DEPENDENCY
+fi
+
+# CREATE ENV + APP:KEY
+_env=$(ask_question "Do you wish to add a '.env' file")
 if [[ ${_env} == true ]]; then
   cp .env.example .env
   printf "\nYour env was updated successfully! \n"
@@ -87,22 +106,7 @@ fi
 printf "\n"
 
 # CREATE LARAVEL VIEW DIRECTORIES
-while true; do
-  read -p "Do you wish to create master & partial views? (Y/n) " _answer
-  case ${_answer:-y} in
-  [Yy]* )
-    _view_dirs=true
-    break
-    ;;
-  [Nn]* )
-    _view_dirs=false
-    break
-    ;;
-  * )
-    printf "Please answer y or n. \n"
-    ;;
-  esac
-done
+_view_dirs=$(ask_question "Do you wish to create master & partial views")
 
 if [[ ${_view_dirs} == true ]]; then
   mkdir "resources/views/pages"
@@ -132,22 +136,7 @@ fi
 printf "\n"
 
 # ADD DEPENDENCIES
-while true; do
-  read -p "Do you wish to add all project dependencies (bower,elixir,gulpfile,etc.) ? (Y/n) " _answer
-  case ${_answer:-y} in
-  [Yy]* )
-    _dependencies=true
-    break
-    ;;
-  [Nn]* )
-    _dependencies=false
-    break
-    ;;
-  * )
-    printf "Please answer y or n. \n"
-    ;;
-  esac
-done
+_dependencies=$(ask_question "Do you wish to add all project dependencies (bower,elixir,gulpfile,etc.)")
 
 if [[ ${_dependencies} == true ]]; then
   # Create ".bowerrc" file

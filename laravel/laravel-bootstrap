@@ -12,6 +12,9 @@ CURL=$(which curl)
 BOWER=$(which bower)
 COMPOSER=$(which composer)
 
+# COMPOSER DEPENDENCIES
+COMPOSER_DEPS="laravelcollective/html guzzlehttp/guzzle:~6.0 tiesa/ldap:dev-master csun-metalab/laravel-proxypass:^1.0 barryvdh/laravel-debugbar"
+
 # APPLICATION EXIT CODES
 E_NOERROR=0
 E_DEPENDENCY=89
@@ -19,10 +22,14 @@ E_DEPENDENCY=89
 # CONSTANTS
 PROJECT_DIR=$(pwd)
 
-# Asks a Y/n question of the user and provides the result as a boolean
+# Asks a Y/n question of the user and provides the result as a boolean.
 #
 # Example usage:
 # retval=$(ask_question "Would you like to do something")
+#
+# The user then gets prompted with the question along with " (Y/n)? " appended.
+#
+# Input of y* or Y* results in true; input of n* or N* results in false.
 function ask_question() {
   local _question="$1"
 
@@ -66,7 +73,7 @@ function get_composer_package() {
 
   printf "\nFetching '${_package}'... \n"
   ${COMPOSER} require ${_package}
-  printf "Composer '${_package}' was added successfully! \n"
+  printf "Composer package '${_package}' was added successfully! \n"
 }
 
 # PACKAGE/DEPENDANCY AVAILABILITY CHECK
@@ -95,12 +102,16 @@ if [[ ! -f "${PROJECT_DIR}/artisan" ]]; then
   exit $E_DEPENDENCY
 fi
 
-# CREATE ENV + APP:KEY
+# CREATE ENV + APP:KEY IF THE ENV FILE DOES NOT ALREADY EXIST
 _env=$(ask_question "Do you wish to add a '.env' file")
 if [[ ${_env} == true ]]; then
-  cp .env.example .env
-  printf "\nYour env was updated successfully! \n"
-  ${PHP} artisan key:generate
+  if [[ -a ".env" ]]; then
+    printf "\nYour env file already exists so this step will be skipped.\n"
+  else
+    cp .env.example .env
+    printf "\nYour env was updated successfully! \n"
+    ${PHP} artisan key:generate
+  fi
 fi
 
 printf "\n"
@@ -154,9 +165,10 @@ if [[ ${_dependencies} == true ]]; then
   _gulp_gist_uri="https://gist.githubusercontent.com/alexhernandez/42df05909d0dbb727ce2/raw/8d52543e942a6191b8e0b0953451e6a565c278fd/gulpfile.js"
   get_gist "${_gulp_file}" "${_gulp_gist_uri}"
 
-  # Fetch Form/HTML Facade
-  _composer_package="laravelcollective/html"
-  get_composer_package "${_composer_package}"
+  # Fetch and install all necessary Composer packages
+  for _composer_package in ${COMPOSER_DEPS} ; do
+    get_composer_package "${_composer_package}"
+  done
 
   # Update config/app.php
   printf "\n"
@@ -165,19 +177,26 @@ if [[ ${_dependencies} == true ]]; then
 
     # Update "Providers" array
     sed -i .tmp "/'providers'/ a\\
-    \\         Collective\\\Html\\\HtmlServiceProvider::class, \\
+    \\        Collective\\\Html\\\HtmlServiceProvider::class,\\
+    \\        Barryvdh\\\Debugbar\\\ServiceProvider::class,\\
+    \\        CSUNMetaLab\\\ProxyPass\\\Providers\\\ProxyPassServiceProvider::class,\\
     " ${config_app_file}
 
     # Update Aliases" array
     sed -i .tmp "/'aliases'/ a\\
-    \\         'Form'      => Collective\\\Html\\\FormFacade::class, \\
-    \\         'HTML'      => Collective\\\Html\\\HtmlFacade::class, \\
+    \\        'Form'      => Collective\\\Html\\\FormFacade::class,\\
+    \\        'HTML'      => Collective\\\Html\\\HtmlFacade::class,\\
+    \\        'Debugbar'  => Barryvdh\\\Debugbar\\\Facade::class,\\
     " ${config_app_file}
 
     # Remove .tmp files
     rm "${config_app_file}.tmp"
     printf "Your ${config_app_file} was updated successfully!"
   popd
+
+  # Now that we have our service providers available, let's go ahead and
+  # publish everything necessary from the vendor packages
+  ${PHP} artisan vendor:publish
 
   # Add Bower to project
   # Create "bower.json" file
@@ -189,6 +208,8 @@ if [[ ${_dependencies} == true ]]; then
   # Install all Node Packages, --loglevel silent??? Look into this.
   printf "\nNow installing Node dependencies... \n Hang tight. This might take a bit... \n\n"
   ${NPM} install
-  printf "\nYo Man... Your Laravel Application Has Been Successfully Bootstrapped! \n Wooooooooooot!!!"
-  echo ""
 fi
+
+printf "\nYo Man... Your Laravel Application Has Been Successfully Bootstrapped! \n Wooooooooooot!!!"
+echo ""
+exit $E_NOERROR

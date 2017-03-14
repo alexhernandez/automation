@@ -22,6 +22,8 @@ Update your `~/.bash_profile` with the following:
   alias laravel-bootstrap=~/path/to/script/automation/laravel/laravel-bootstrap
 ```
 
+The `laravel-bootstrap` script will also automatically install Bower, Gulp, and Composer for you if you do not already have those dependencies.
+
 Create a new Laravel project w/ `laravel new <project-name>` followed by `laravel-bootstrap`. The following can now be automatically added to your Laravel project.
 
 ```bash

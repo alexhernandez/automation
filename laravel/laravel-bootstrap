@@ -124,6 +124,14 @@ function install_node_package() {
     ${NPM} install ${_package} --save
   fi
 
+  # Check to see if the package exists if installed globally and exit with a
+  # dependency error code if it does not
+  if [[ ${_mode} == "global" && -z $(which ${_package}) ]]; then
+    echo "[ERROR] ${_package} could not be installed globally"
+    echo "[ERROR] ${NPM} install -g ${_package}"
+    exit $E_DEPENDENCY
+  fi
+
   echo "[INFO] ${_package} has been installed successfully!"
 }
 

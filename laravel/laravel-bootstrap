@@ -23,6 +23,35 @@ E_DEPENDENCY=89
 # CONSTANTS
 PROJECT_DIR=$(pwd)
 
+# Echo a line of output with the given color. This function uses ANSI color codes.
+# Available colors:
+#   red, green, yellow
+#
+# Example usage:
+# echo_color "red" "[ERROR] An error has occurred"
+#
+# The example would display a string using the ANSI color code for red
+#
+# ANSI color codes: http://misc.flogisoft.com/bash/tip_colors_and_formatting
+function echo_color() {
+  local _color=$1
+  local _msg=$2
+
+  # Output the message using the specified color using ANSI color codes and
+  # ANSI-quoted strings in Bash. The \e[0m] means to clear the formatting at
+  # the end of the line to prevent the styles from persisting.
+  if [[ ${_color} == "red" ]]; then
+    echo -e $'\e[91m'"${_msg}"$'\e[0m'
+  elif [[ ${_color} == "green" ]]; then
+    echo -e $'\e[92m'"${_msg}"$'\e[0m'
+  elif [[ ${_color} == "yellow" ]]; then
+    echo -e $'\e[33m'"${_msg}"$'\e[0m'
+  else
+    # Invalid color specified so just output the message
+    echo ${_msg}
+  fi
+}
+
 # Displays a bit of information about this application
 function display_toast() {
   echo "laravel-bootstrap v1.1.0 by Alex Hernandez and Matthew Fritz"
@@ -42,7 +71,10 @@ function ask_question() {
   local _question="$1"
 
   while true; do
-    read -p "$_question (Y/n)? " _answer
+    # Read input from the user but color the question line yellow using
+    # Bash ANSI-quoted strings and ANSI color control codes
+    read -p $'\e[33m'"$_question"$' (Y/n)?\e[0m ' _answer
+
     # Set default for NULL or UNSET
     # http://www.network-theory.co.uk/docs/bashref/ShellParameterExpansion.html
     case ${_answer:-y} in
@@ -59,7 +91,8 @@ function ask_question() {
       break
       ;;
     * )
-      printf "Please answer y or n. \n"
+      # No output
+      :
       ;;
     esac
   done
@@ -97,19 +130,19 @@ function install_node_package() {
   fi
 
   if [[ ${_mode} != "local" && ${_mode} != "global" ]]; then
-    echo "[ERROR] Mode for installing Node package must be either local or global"
+    echo_color "red" "[ERROR] Mode for installing Node package must be either local or global."
     exit $E_DEPENDENCY
   fi
 
   local _retval=$(ask_question "Would you like to install ${_package} automatically")
   if [[ ${_retval} == false ]]; then
-    echo "[ERROR] ${_package} is a required dependency for this application."
+    echo_color "red" "[ERROR] ${_package} is a required dependency for this application."
 
     # Display the manual installation instructions
     if [[ ${_mode} == "global" ]]; then
-      echo "[ERROR] npm install -g ${_package}"
+      echo_color "red" "[ERROR] ${NPM} install -g ${_package}"
     else
-      echo "[ERROR] npm install ${_package} --save"
+      echo_color "red" "[ERROR] ${NPM} install ${_package} --save"
     fi
 
     exit $E_DEPENDENCY
@@ -127,8 +160,8 @@ function install_node_package() {
   # Check to see if the package exists if installed globally and exit with a
   # dependency error code if it does not
   if [[ ${_mode} == "global" && -z $(which ${_package}) ]]; then
-    echo "[ERROR] ${_package} could not be installed globally"
-    echo "[ERROR] ${NPM} install -g ${_package}"
+    echo_color "red" "[ERROR] ${_package} could not be installed globally"
+    echo_color "red" "[ERROR] ${NPM} install -g ${_package}"
     exit $E_DEPENDENCY
   fi
 
@@ -145,8 +178,8 @@ function install_composer() {
 
   local _retval=$(ask_question "Would you like to install Composer automatically")
   if [[ ${_retval} == false ]]; then
-    echo "[ERROR] Composer is a required dependency for this application."
-    echo "[ERROR] https://getcomposer.org/download/"
+    echo_color "red" "[ERROR] Composer is a required dependency for this application."
+    echo_color "red" "[ERROR] https://getcomposer.org/download/"
     exit $E_DEPENDENCY
   fi
 
@@ -166,7 +199,7 @@ function install_composer() {
 
   if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]
   then
-      >&2 echo "[ERROR] Invalid Composer installer signature"
+      >&2 echo_color "red" "[ERROR] Invalid Composer installer signature"
       rm composer-setup.php
       exit $E_DEPENDENCY
   fi
@@ -185,8 +218,8 @@ function install_composer() {
   # If the composer.phar file does not exist then the installation
   # failed and we need to throw an error
   if [[ ! -a "composer.phar" ]]; then
-    echo "[ERROR] Composer installation failed so you will need to do it manually"
-    echo "[ERROR] https://getcomposer.org/download/"
+    echo_color "red" "[ERROR] Composer installation failed so you will need to do it manually"
+    echo_color "red" "[ERROR] https://getcomposer.org/download/"
     exit $E_DEPENDENCY
   fi
 
@@ -216,13 +249,13 @@ display_toast
 
 # PACKAGE/DEPENDANCY AVAILABILITY CHECK
 if [[ -z ${NPM} ]]; then
-  echo "[ERROR] Oh no npm is missing!"
+  echo_color "red" "[ERROR] Oh no npm is missing!"
   exit $E_DEPENDENCY
 elif [[ -z ${PHP} ]]; then
-  echo "[ERROR] Oh no php is missing!"
+  echo_color "red" "[ERROR] Oh no php is missing!"
   exit $E_DEPENDENCY
 elif [[ -z ${CURL} ]]; then
-  echo "[ERROR] Oh no curl is missing!"
+  echo_color "red" "[ERROR] Oh no curl is missing!"
   exit $E_DEPENDENCY
 elif [[ -z ${BOWER} ]]; then
   # Attempt to install Bower globally if it is missing
@@ -245,7 +278,8 @@ printf "\n"
 
 # CHECK FOR LARAVEL INSTALL
 if [[ ! -f "${PROJECT_DIR}/artisan" ]]; then
-  printf "[ERROR] Yo Man... Are you in the correct project directory? \nLaravel not found! \n\n"
+  echo_color "red" "[ERROR] Yo Man... Are you in the correct project directory?"
+  echo_color "red" "[ERROR] Laravel not found!"
   exit $E_DEPENDENCY
 fi
 
@@ -359,6 +393,8 @@ if [[ ${_dependencies} == true ]]; then
   ${NPM} install
 fi
 
-printf "\n[INFO] Yo Man... Your Laravel Application Has Been Successfully Bootstrapped! \n [INFO] Wooooooooooot!!!"
+# Display the final success message in green
+echo_color "green" "[INFO] Yo Man... Your Laravel Application Has Been Successfully Bootstrapped!"
+echo_color "green" "[INFO] Wooooooooooot!!!"
 echo ""
 exit $E_NOERROR

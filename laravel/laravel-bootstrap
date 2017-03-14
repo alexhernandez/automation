@@ -22,6 +22,13 @@ E_DEPENDENCY=89
 # CONSTANTS
 PROJECT_DIR=$(pwd)
 
+# Displays a bit of information about this application
+function display_toast() {
+  echo "laravel-bootstrap v1.1.0 by Alex Hernandez and Matthew Fritz"
+  echo "Bootstraps a Laravel project with front-end and back-end dependencies"
+  echo
+}
+
 # Asks a Y/n question of the user and provides the result as a boolean.
 #
 # Example usage:
@@ -41,15 +48,13 @@ function ask_question() {
     [Yy]* )
       # Function called as $(ask_question "question") so return value can be
       # captured using command substitution
-      _retval=true
-      echo $_retval
+      echo true
       break
       ;;
     [Nn]* )
       # Function called as $(ask_question "question") so return value can be
       # captured using command substitution
-      _retval=false
-      echo $_retval
+      echo false
       break
       ;;
     * )
@@ -59,46 +64,119 @@ function ask_question() {
   done
 }
 
-# LARAVEL BOOTSTRAP FUNCTIONS
+# Retrieves and adds a GitHub Gist
 function get_gist() {
   local _file="$1"
   local _uri="$2"
 
   ${CURL} -o "${_file}" "${_uri}"
-  printf "\nYour ${_file} was updated successfully! \n"
+  printf "\n[INFO] Your ${_file} was updated successfully! \n"
 }
 
+# Downloads and installs Composer if the dependency is missing
+function install_composer() {
+  # Make sure Composer has not already been installed
+  if [[ ! -z ${COMPOSER} ]]; then
+    echo "[INFO] Composer has already been installed so this step will be skipped"
+    return;
+  fi
+
+  local _retval=$(ask_question "Would you like to install Composer automatically")
+  if [[ ${_retval} == false ]]; then
+    echo "[ERROR] Composer is a required dependency for this application."
+    echo "[ERROR] https://getcomposer.org/download/"
+    exit $E_DEPENDENCY
+  fi
+
+  # Sometimes Composer is screwy over SSL/TLS so let's ask outright
+  local _tls=$(ask_question "Would you like to install over SSL/TLS")
+
+  # Create a /usr/local/composer directory so we can perform the installation
+  # in that directory
+  mkdir /usr/local/composer
+  pushd /usr/local/composer
+
+  # --- BEGIN REFACTORED COMPOSER INSTALLATION CODE ---
+  # ORIGINAL: https://getcomposer.org/doc/faqs/how-to-install-composer-programmatically.md
+  EXPECTED_SIGNATURE=$(${CURL} -s https://composer.github.io/installer.sig)
+  ${PHP} -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+  ACTUAL_SIGNATURE=$(${PHP} -r "echo hash_file('SHA384', 'composer-setup.php');")
+
+  if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]
+  then
+      >&2 echo "[ERROR] Invalid Composer installer signature"
+      rm composer-setup.php
+      exit $E_DEPENDENCY
+  fi
+
+  # Install Composer based on whether TLS should be enabled
+  if [[ ${_tls} == true ]]; then
+    ${PHP} composer-setup.php --quiet
+  else
+    ${PHP} composer-setup.php --quiet --disable-tls
+  fi
+
+  RESULT=$?
+  rm composer-setup.php
+  # --- END REFACTORED COMPOSER INSTALLATION CODE ---
+
+  # If the composer.phar file does not exist then the installation
+  # failed and we need to throw an error
+  if [[ ! -a "composer.phar" ]]; then
+    echo "[ERROR] Composer installation failed so you will need to do it manually"
+    echo "[ERROR] https://getcomposer.org/download/"
+    exit $E_DEPENDENCY
+  fi
+
+  # Break out of the /usr/local/composer directory
+  popd
+
+  # Make a symlink in /usr/local/bin to the composer installation and
+  # then break out of that directory
+  pushd /usr/local/bin
+  ln -s ../composer/composer.phar composer
+  popd
+
+  COMPOSER=$(which composer)
+  echo "[INFO] Composer has been installed successfully"
+}
+
+# Retrieves and installs a Composer package
 function get_composer_package() {
   local _package="$1"
 
-  printf "\nFetching '${_package}'... \n"
+  printf "\n[INFO] Fetching '${_package}'... \n"
   ${COMPOSER} require ${_package}
-  printf "Composer package '${_package}' was added successfully! \n"
+  printf "[INFO] Composer package '${_package}' was added successfully! \n"
 }
+
+# Display information about the application
+display_toast
 
 # PACKAGE/DEPENDANCY AVAILABILITY CHECK
 if [[ -z ${NPM} ]]; then
-  echo "Oh no npm is missing!"
+  echo "[ERROR] Oh no npm is missing!"
   exit $E_DEPENDENCY
 elif [[ -z ${PHP} ]]; then
-  echo "Oh no php is missing!"
+  echo "[ERROR] Oh no php is missing!"
   exit $E_DEPENDENCY
 elif [[ -z ${CURL} ]]; then
-  echo "Oh no curl is missing!"
+  echo "[ERROR] Oh no curl is missing!"
   exit $E_DEPENDENCY
 elif [[ -z ${BOWER} ]]; then
-  echo "Oh no bower is missing!"
+  echo "[ERROR] Oh no bower is missing!"
   exit $E_DEPENDENCY
 elif [[ -z ${COMPOSER} ]]; then
-  echo "Oh no composer is missing!"
-  exit $E_DEPENDENCY
+  # Attempt to install Composer if it is missing
+  echo "[INFO] It looks like you are missing Composer..."
+  install_composer
 fi
 
 printf "\n"
 
 # CHECK FOR LARAVEL INSTALL
 if [[ ! -f "${PROJECT_DIR}/artisan" ]]; then
-  printf "Yo Man... Are you in the correct project directory? \nLaravel not found! \n\n"
+  printf "[ERROR] Yo Man... Are you in the correct project directory? \nLaravel not found! \n\n"
   exit $E_DEPENDENCY
 fi
 
@@ -106,10 +184,10 @@ fi
 _env=$(ask_question "Do you wish to add a '.env' file")
 if [[ ${_env} == true ]]; then
   if [[ -a ".env" ]]; then
-    printf "\nYour env file already exists so this step will be skipped.\n"
+    printf "\n[INFO] Your env file already exists so this step will be skipped.\n"
   else
     cp .env.example .env
-    printf "\nYour env was updated successfully! \n"
+    printf "\n[INFO] Your env was updated successfully! \n"
     ${PHP} artisan key:generate
   fi
 fi
@@ -140,7 +218,7 @@ if [[ ${_view_dirs} == true ]]; then
     touch "nav.blade.php"
     touch "header.blade.php"
     touch "footer.blade.php"
-    printf "\nYour partials were updated successfully! \n"
+    printf "\n[INFO] Your partials were updated successfully! \n"
   popd
 fi
 
@@ -191,25 +269,27 @@ if [[ ${_dependencies} == true ]]; then
 
     # Remove .tmp files
     rm "${config_app_file}.tmp"
-    printf "Your ${config_app_file} was updated successfully!"
+    printf "[INFO] Your ${config_app_file} was updated successfully!\n"
   popd
 
   # Now that we have our service providers available, let's go ahead and
   # publish everything necessary from the vendor packages
+  printf "[INFO] Publishing vendor configuration and resources...\n"
   ${PHP} artisan vendor:publish
+  printf "[INFO] Successfully published vendor assets!\n"
 
   # Add Bower to project
   # Create "bower.json" file
-  printf "\nLets Initialize Bower... \n"
+  printf "\n[INFO] Lets Initialize Bower... \n"
     _bower_file="bower.json"
     _bower_gist_uri="https://gist.githubusercontent.com/alexhernandez/bb21151902015a55d892/raw/2ce0791f347cb2c9ce3ca91304f1f322af248701/bower.json"
     get_gist "${_bower_file}" "${_bower_gist_uri}"
 
   # Install all Node Packages, --loglevel silent??? Look into this.
-  printf "\nNow installing Node dependencies... \n Hang tight. This might take a bit... \n\n"
+  printf "\n[INFO] Now installing Node dependencies... \n Hang tight. This might take a bit... \n\n"
   ${NPM} install
 fi
 
-printf "\nYo Man... Your Laravel Application Has Been Successfully Bootstrapped! \n Wooooooooooot!!!"
+printf "\n[INFO] Yo Man... Your Laravel Application Has Been Successfully Bootstrapped! \n [INFO] Wooooooooooot!!!"
 echo ""
 exit $E_NOERROR

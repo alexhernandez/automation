@@ -10,6 +10,7 @@ NPM=$(which npm)
 PHP=$(which php)
 CURL=$(which curl)
 BOWER=$(which bower)
+GULP=$(which gulp)
 COMPOSER=$(which composer)
 
 # COMPOSER DEPENDENCIES
@@ -71,6 +72,46 @@ function get_gist() {
 
   ${CURL} -o "${_file}" "${_uri}"
   printf "\n[INFO] Your ${_file} was updated successfully! \n"
+}
+
+# Installs Bower globally using NPM if the dependency is missing
+function install_bower() {
+  if [[ ! -z ${BOWER} ]]; then
+    echo "[INFO] Bower has already been installed globally so this step will be skipped"
+    return;
+  fi
+
+  local _retval=$(ask_question "Would you like to install Bower automatically")
+  if [[ ${_retval} == false ]]; then
+    echo "[ERROR] Bower is a required dependency for this application."
+    echo "[ERROR] npm install -g bower"
+    exit $E_DEPENDENCY
+  fi
+
+  echo "[INFO] Installing Bower globally..."
+  ${NPM} install -g bower
+  echo "[INFO] Bower has been installed successfully!"
+  BOWER=$(which bower)
+}
+
+# Installs Gulp globally using NPM if the dependency is missing
+function install_gulp() {
+  if [[ ! -z ${GULP} ]]; then
+    echo "[INFO] Gulp has already been installed globally so this step will be skipped"
+    return;
+  fi
+
+  local _retval=$(ask_question "Would you like to install Gulp automatically")
+  if [[ ${_retval} == false ]]; then
+    echo "[ERROR] Gulp is a required dependency for this application."
+    echo "[ERROR] npm install -g gulp"
+    exit $E_DEPENDENCY
+  fi
+
+  echo "[INFO] Installing Gulp globally..."
+  ${NPM} install -g gulp
+  echo "[INFO] Gulp has been installed successfully!"
+  GULP=$(which gulp)
 }
 
 # Downloads and installs Composer if the dependency is missing
@@ -164,8 +205,13 @@ elif [[ -z ${CURL} ]]; then
   echo "[ERROR] Oh no curl is missing!"
   exit $E_DEPENDENCY
 elif [[ -z ${BOWER} ]]; then
-  echo "[ERROR] Oh no bower is missing!"
-  exit $E_DEPENDENCY
+  # Attempt to install Bower globally if it is missing
+  echo "[INFO] It looks like you are missing Bower..."
+  install_bower
+elif [[ -z ${GULP} ]]; then
+  # Attempt to install Gulp globally if it is missing
+  echo "[INFO] It looks like you are missing Gulp..."
+  install_gulp
 elif [[ -z ${COMPOSER} ]]; then
   # Attempt to install Composer if it is missing
   echo "[INFO] It looks like you are missing Composer..."

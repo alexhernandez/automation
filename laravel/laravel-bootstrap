@@ -74,44 +74,57 @@ function get_gist() {
   printf "\n[INFO] Your ${_file} was updated successfully! \n"
 }
 
-# Installs Bower globally using NPM if the dependency is missing
-function install_bower() {
-  if [[ ! -z ${BOWER} ]]; then
-    echo "[INFO] Bower has already been installed globally so this step will be skipped"
+# Installs a Node package either globally or locally.
+#
+# Example usage (installs Bower globally):
+# install_node_package "bower" "global"
+# BOWER=$(which bower)
+#
+# The global variable BOWER will then have the path to the globally-installed version
+# of Bower.
+#
+# Example usage (installs socket.io locally):
+# install_node_package "socket.io" "local"
+function install_node_package() {
+  local _package=$1
+  local _mode=$2
+
+  local _package_path=$(which ${_package})
+
+  if [[ ! -z ${_package_path} && ${_mode} == "global" ]]; then
+    echo "[INFO] ${_package} has already been installed so this step will be skipped"
     return;
   fi
 
-  local _retval=$(ask_question "Would you like to install Bower automatically")
-  if [[ ${_retval} == false ]]; then
-    echo "[ERROR] Bower is a required dependency for this application."
-    echo "[ERROR] npm install -g bower"
+  if [[ ${_mode} != "local" && ${_mode} != "global" ]]; then
+    echo "[ERROR] Mode for installing Node package must be either local or global"
     exit $E_DEPENDENCY
   fi
 
-  echo "[INFO] Installing Bower globally..."
-  ${NPM} install -g bower
-  echo "[INFO] Bower has been installed successfully!"
-  BOWER=$(which bower)
-}
-
-# Installs Gulp globally using NPM if the dependency is missing
-function install_gulp() {
-  if [[ ! -z ${GULP} ]]; then
-    echo "[INFO] Gulp has already been installed globally so this step will be skipped"
-    return;
-  fi
-
-  local _retval=$(ask_question "Would you like to install Gulp automatically")
+  local _retval=$(ask_question "Would you like to install ${_package} automatically")
   if [[ ${_retval} == false ]]; then
-    echo "[ERROR] Gulp is a required dependency for this application."
-    echo "[ERROR] npm install -g gulp"
+    echo "[ERROR] ${_package} is a required dependency for this application."
+
+    # Display the manual installation instructions
+    if [[ ${_mode} == "global" ]]; then
+      echo "[ERROR] npm install -g ${_package}"
+    else
+      echo "[ERROR] npm install ${_package} --save"
+    fi
+
     exit $E_DEPENDENCY
   fi
 
-  echo "[INFO] Installing Gulp globally..."
-  ${NPM} install -g gulp
-  echo "[INFO] Gulp has been installed successfully!"
-  GULP=$(which gulp)
+  # Perform a different installation based on the mode specified
+  if [[ ${_mode} == "global" ]]; then
+    echo "[INFO] Installing ${_package} globally..."
+    ${NPM} install -g ${_package}
+  else
+    echo "[INFO] Installing ${_package} locally..."
+    ${NPM} install ${_package} --save
+  fi
+
+  echo "[INFO] ${_package} has been installed successfully!"
 }
 
 # Downloads and installs Composer if the dependency is missing
@@ -178,7 +191,6 @@ function install_composer() {
   ln -s ../composer/composer.phar composer
   popd
 
-  COMPOSER=$(which composer)
   echo "[INFO] Composer has been installed successfully"
 }
 
@@ -207,15 +219,18 @@ elif [[ -z ${CURL} ]]; then
 elif [[ -z ${BOWER} ]]; then
   # Attempt to install Bower globally if it is missing
   echo "[INFO] It looks like you are missing Bower..."
-  install_bower
+  install_node_package "bower" "global"
+  BOWER=$(which bower)
 elif [[ -z ${GULP} ]]; then
   # Attempt to install Gulp globally if it is missing
   echo "[INFO] It looks like you are missing Gulp..."
-  install_gulp
+  install_node_package "gulp" "global"
+  GULP=$(which gulp)
 elif [[ -z ${COMPOSER} ]]; then
   # Attempt to install Composer if it is missing
   echo "[INFO] It looks like you are missing Composer..."
   install_composer
+  COMPOSER=$(which composer)
 fi
 
 printf "\n"

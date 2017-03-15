@@ -12,6 +12,7 @@ CURL=$(which curl)
 BOWER=$(which bower)
 GULP=$(which gulp)
 COMPOSER=$(which composer)
+LARAVEL_INSTALLER=$(which laravel)
 
 # COMPOSER DEPENDENCIES
 COMPOSER_DEPS="laravelcollective/html guzzlehttp/guzzle:~6.0 tiesa/ldap:dev-master csun-metalab/laravel-proxypass:^1.0 barryvdh/laravel-debugbar"
@@ -197,11 +198,10 @@ function install_composer() {
   ${PHP} -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
   ACTUAL_SIGNATURE=$(${PHP} -r "echo hash_file('SHA384', 'composer-setup.php');")
 
-  if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]
-  then
-      >&2 echo_color "red" "[ERROR] Invalid Composer installer signature"
-      rm composer-setup.php
-      exit $E_DEPENDENCY
+  if [[ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]]; then
+    >&2 echo_color "red" "[ERROR] Invalid Composer installer signature"
+    rm composer-setup.php
+    exit $E_DEPENDENCY
   fi
 
   # Install Composer based on whether TLS should be enabled
@@ -235,6 +235,36 @@ function install_composer() {
   echo "[INFO] Composer has been installed successfully"
 }
 
+# Installs a fresh Laravel project in the current directory
+function install_laravel() {
+  _laravel=$(ask_question "Would you like to create a fresh Laravel project here")
+  if [[ ${_laravel}} == true ]]; then
+    echo "[INFO] Creating a new Laravel project. Hang tight."
+
+    # Use the Laravel installer if available; otherwise, fall back to the
+    # Composer method
+    if [[ ! -z ${LARAVEL_INSTALLER} ]]; then
+      echo "[INFO] Creating Laravel project using the Laravel installer..."
+      ${LARAVEL_INSTALLER} new laravel
+    else
+      echo "[INFO] Creating Laravel project using Composer..."
+      ${COMPOSER} create-project --prefer-dist laravel/laravel
+    fi
+
+    # Push the new Laravel directory if it exists
+    if [[ -d "laravel" ]]; then
+      echo "[INFO] A new Laravel project has been created successfully"
+    else
+      echo_color "red" "[ERROR] Laravel project creation failed so you may have to do it manually"
+      echo_color "red" "[ERROR] https://laravel.com/docs"
+      exit $E_DEPENDENCY
+    fi
+  else
+    echo_color "red" "[ERROR] A Laravel project is required to use this application"
+    exit $E_DEPENDENCY
+  fi
+}
+
 # Retrieves and installs a Composer package
 function get_composer_package() {
   local _package="$1"
@@ -247,7 +277,7 @@ function get_composer_package() {
 # Display information about the application
 display_toast
 
-# PACKAGE/DEPENDANCY AVAILABILITY CHECK
+# GLOBAL PACKAGE/DEPENDENCY AVAILABILITY CHECK
 if [[ -z ${NPM} ]]; then
   echo_color "red" "[ERROR] Oh no npm is missing!"
   exit $E_DEPENDENCY
@@ -277,10 +307,17 @@ fi
 printf "\n"
 
 # CHECK FOR LARAVEL INSTALL
+_pushed_laravel_dir=false
 if [[ ! -f "${PROJECT_DIR}/artisan" ]]; then
-  echo_color "red" "[ERROR] Yo Man... Are you in the correct project directory?"
-  echo_color "red" "[ERROR] Laravel not found!"
-  exit $E_DEPENDENCY
+  echo "[INFO] It appears you are not within a Laravel project directory..."
+
+  # We're not in a Laravel installation directory but let's see if the user
+  # wants to initialize a fresh project in this directory
+  install_laravel
+
+  # Push the new Laravel directory
+  _pushed_laravel_dir=true
+  pushd laravel
 fi
 
 # CREATE ENV + APP:KEY IF THE ENV FILE DOES NOT ALREADY EXIST
@@ -391,6 +428,11 @@ if [[ ${_dependencies} == true ]]; then
   # Install all Node Packages, --loglevel silent??? Look into this.
   printf "\n[INFO] Now installing Node dependencies... \n Hang tight. This might take a bit... \n\n"
   ${NPM} install
+fi
+
+# Pop the Laravel directory if we had pushed into it
+if [[ ${_pushed_laravel_dir} == true ]]; then
+  popd
 fi
 
 # Display the final success message in green

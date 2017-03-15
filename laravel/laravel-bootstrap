@@ -175,7 +175,12 @@ function install_node_package() {
   # dependency error code if it does not
   if [[ ${_mode} == "global" && -z $(which ${_package}) ]]; then
     echo_color "red" "[ERROR] ${_package} could not be installed globally"
-    echo_color "red" "[ERROR] ${NPM} install -g ${_package}"
+
+    if [[ ! -z ${YARN} ]]; then
+      echo_color "red" "[ERROR] ${YARN} global add ${_package}"
+    else
+      echo_color "red" "[ERROR] ${NPM} install -g ${_package}"
+    fi
     exit $E_DEPENDENCY
   fi
 

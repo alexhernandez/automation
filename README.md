@@ -58,6 +58,8 @@ You can execute the script with a flag in order to take the default action for a
 
 You will not be prompted for any input during any of the actions.
 
+#### All Actions Performed
+
 The default actions will be performed in order:
 
 1. Install Bower globally if it does not exist

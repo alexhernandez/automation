@@ -2,7 +2,7 @@
 
 # Alex Hernandez and Matthew Fritz
 # Bootstrapping A Laravel Project
-# v1.2.0
+# v1.2.2
 # ===============================================================|
 
 # GLOBAL VARS
@@ -23,6 +23,15 @@ COMPOSER_DEPS="laravelcollective/html guzzlehttp/guzzle:~6.0 tiesa/ldap:dev-mast
 # APPLICATION EXIT CODES
 E_NOERROR=0
 E_DEPENDENCY=89
+
+# DETERMINE WHETHER WE SHOULD USE DEFAULT ANSWERS TO QUESTIONS
+# The script would have been started with one parameter of --use-defaults
+USE_DEFAULTS=false
+if [[ $# -eq 1 ]]; then
+  if [[ "$1" == "--use-defaults" ]]; then
+    USE_DEFAULTS=true
+  fi
+fi
 
 # Echo a line of output with the given color. This function uses ANSI color codes.
 # Available colors:
@@ -57,7 +66,7 @@ function echo_color() {
 
 # Displays a bit of information about this application
 function display_toast() {
-  echo_color "cyan" "laravel-bootstrap v1.2.0 by Alex Hernandez and Matthew Fritz"
+  echo_color "cyan" "laravel-bootstrap v1.2.2 by Alex Hernandez and Matthew Fritz"
   echo_color "cyan" "Bootstraps a Laravel project with front-end and back-end dependencies"
   echo
 }
@@ -72,6 +81,13 @@ function display_toast() {
 # Input of y* or Y* results in true; input of n* or N* results in false.
 function ask_question() {
   local _question="$1"
+
+  # If we are using the default answers to questions we don't really need
+  # to prompt for input; we will just echo true instead
+  if [[ ${USE_DEFAULTS} == true ]]; then
+    echo true
+    return;
+  fi
 
   while true; do
     # Read input from the user but color the question line yellow using

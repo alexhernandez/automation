@@ -50,6 +50,14 @@ Create a new Laravel project w/ `laravel new <project-name>` followed by `larave
 
 If you do not wish to create a new Laravel project manually the `laravel-bootstrap` script can also create a project automatically if you are not currently within a Laravel project directory.
 
+### Use Default Settings
+
+You can execute the script with a flag in order to take the default action for all commands that would require input:
+
+`laravel-bootstrap --use-defaults`
+
+You will not be prompted for any input during any of the actions.
+
 ## Mac Application Setup
 
 ```bash

@@ -70,11 +70,11 @@ The default actions will be performed in order:
 8. Create an elixir.json file if one does not already exist
 9. Create a gulpfile.js file if one does not already exist
 10. Install the relevant Composer packages
-   * laravelcollective/html
-   * guzzlehttp/guzzle
-   * tiesa/ldap
-   * csun-metalab/laravel-proxypass
-   * barryvdh/laravel-debugbar
+  * laravelcollective/html
+  * guzzlehttp/guzzle
+  * tiesa/ldap
+  * csun-metalab/laravel-proxypass
+  * barryvdh/laravel-debugbar
 11. Add the relevant service providers from the Composer packages to config/app.php
 12. Add the relevant alias from the Composer packages to config/app.php
 13. Publish all vendor resources from all Composer packages

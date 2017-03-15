@@ -46,6 +46,8 @@ Create a new Laravel project w/ `laravel new <project-name>` followed by `larave
       └── bower_components
 ```
 
+If you do not wish to create a new Laravel project manually the `laravel-bootstrap` script can also create a project automatically if you are not currently within a Laravel project directory.
+
 ## Mac Application Setup
 
 ```bash

@@ -24,6 +24,8 @@ Update your `~/.bash_profile` with the following:
 
 The `laravel-bootstrap` script will also automatically install Bower, Gulp, and Composer for you if you do not already have those dependencies.
 
+During the installation of the Node packages the script will prefer Yarn over NPM.
+
 Create a new Laravel project w/ `laravel new <project-name>` followed by `laravel-bootstrap`. The following can now be automatically added to your Laravel project.
 
 ```bash

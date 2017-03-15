@@ -6,13 +6,19 @@
 # ===============================================================|
 
 # GLOBAL VARS
-NPM=$(which npm)
 PHP=$(which php)
 CURL=$(which curl)
 BOWER=$(which bower)
 GULP=$(which gulp)
 COMPOSER=$(which composer)
 LARAVEL_INSTALLER=$(which laravel)
+
+# NPM GLOBAL VAR (PREFER YARN OVER NPM)
+if [[ ! -z $(which yarn) ]]; then
+  NPM=$(which yarn)
+else
+  NPM=$(which npm)
+fi
 
 # COMPOSER DEPENDENCIES
 COMPOSER_DEPS="laravelcollective/html guzzlehttp/guzzle:~6.0 tiesa/ldap:dev-master csun-metalab/laravel-proxypass:^1.0 barryvdh/laravel-debugbar"

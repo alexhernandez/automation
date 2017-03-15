@@ -13,12 +13,9 @@ GULP=$(which gulp)
 COMPOSER=$(which composer)
 LARAVEL_INSTALLER=$(which laravel)
 
-# NPM GLOBAL VAR (PREFER YARN OVER NPM)
-if [[ ! -z $(which yarn) ]]; then
-  NPM=$(which yarn)
-else
-  NPM=$(which npm)
-fi
+# NPM GLOBAL VARS (WE WILL PREFER YARN OVER NPM)
+YARN=$(which yarn)
+NPM=$(which npm)
 
 # COMPOSER DEPENDENCIES
 COMPOSER_DEPS="laravelcollective/html guzzlehttp/guzzle:~6.0 tiesa/ldap:dev-master csun-metalab/laravel-proxypass:^1.0 barryvdh/laravel-debugbar"
@@ -154,13 +151,24 @@ function install_node_package() {
     exit $E_DEPENDENCY
   fi
 
-  # Perform a different installation based on the mode specified
+  # Perform a different installation based on the mode specified; prefer Yarn
+  # over NPM in all cases
   if [[ ${_mode} == "global" ]]; then
-    echo "[INFO] Installing ${_package} globally..."
-    ${NPM} install -g ${_package}
+    if [[ ! -z ${YARN} ]]; then
+      echo "[INFO] Installing ${_package} globally using Yarn..."
+      ${YARN} global add ${_package}
+    else
+      echo "[INFO] Installing ${_package} globally using NPM..."
+      ${NPM} install -g ${_package}
+    fi
   else
-    echo "[INFO] Installing ${_package} locally..."
-    ${NPM} install ${_package} --save
+    if [[ ! -z ${YARN} ]]; then
+      echo "[INFO] Installing ${_package} locally using Yarn..."
+      ${YARN} add ${_package}
+    else
+      echo "[INFO] Installing ${_package} locally using NPM..."
+      ${NPM} install ${_package} --save
+    fi
   fi
 
   # Check to see if the package exists if installed globally and exit with a
@@ -283,8 +291,8 @@ function get_composer_package() {
 display_toast
 
 # GLOBAL PACKAGE/DEPENDENCY AVAILABILITY CHECK
-if [[ -z ${NPM} ]]; then
-  echo_color "red" "[ERROR] Oh no npm is missing!"
+if [[ -z ${NPM} && -z ${YARN} ]]; then
+  echo_color "red" "[ERROR] Please install either Yarn or NPM to install Node packages."
   exit $E_DEPENDENCY
 elif [[ -z ${PHP} ]]; then
   echo_color "red" "[ERROR] Oh no php is missing!"
@@ -432,7 +440,13 @@ if [[ ${_dependencies} == true ]]; then
 
   # Install all Node Packages, --loglevel silent??? Look into this.
   printf "\n[INFO] Now installing Node dependencies... \n Hang tight. This might take a bit... \n\n"
-  ${NPM} install
+
+  # Prefer Yarn over NPM while installing packages from package.json
+  if [[ ! -z ${YARN} ]]; then
+    ${YARN} install
+  else
+    ${NPM} install
+  fi
 fi
 
 # Pop the Laravel directory if we had pushed into it

@@ -15,7 +15,7 @@ Hassle Free Setup of Your Mac Binaries, Applications, Projects and Plugins.
 3. Restart OR source command-line with `source ~/.bash_profile`
 4. Run the desired script (ex. `laravel-bootstrap`, `mac-setup`, or `sublime-plugins`)
 
-## Laravel: Bootstrap Front-End
+## Laravel: Bootstrap Front-End and Back-End
 Update your `~/.bash_profile` with the following:
 
 ```bash

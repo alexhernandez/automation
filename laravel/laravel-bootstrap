@@ -2,7 +2,7 @@
 
 # Alex Hernandez and Matthew Fritz
 # Bootstrapping A Laravel Project
-# v1.1.0
+# v1.2.0
 # ===============================================================|
 
 # GLOBAL VARS
@@ -23,7 +23,7 @@ E_DEPENDENCY=89
 
 # Echo a line of output with the given color. This function uses ANSI color codes.
 # Available colors:
-#   red, green, yellow
+#   red, green, yellow, cyan
 #
 # Example usage:
 # echo_color "red" "[ERROR] An error has occurred"
@@ -36,14 +36,16 @@ function echo_color() {
   local _msg=$2
 
   # Output the message using the specified color using ANSI color codes and
-  # ANSI-quoted strings in Bash. The \e[0m] means to clear the formatting at
+  # ANSI-quoted strings in Bash. The \e[0m means to clear the formatting at
   # the end of the line to prevent the styles from persisting.
   if [[ ${_color} == "red" ]]; then
     echo -e $'\e[91m'"${_msg}"$'\e[0m'
   elif [[ ${_color} == "green" ]]; then
-    echo -e $'\e[92m'"${_msg}"$'\e[0m'
+    echo -e $'\e[32m'"${_msg}"$'\e[0m'
   elif [[ ${_color} == "yellow" ]]; then
     echo -e $'\e[33m'"${_msg}"$'\e[0m'
+  elif [[ ${_color} == "cyan" ]]; then
+    echo -e $'\e[36m'"${_msg}"$'\e[0m'
   else
     # Invalid color specified so just output the message
     echo ${_msg}
@@ -52,8 +54,8 @@ function echo_color() {
 
 # Displays a bit of information about this application
 function display_toast() {
-  echo "laravel-bootstrap v1.1.0 by Alex Hernandez and Matthew Fritz"
-  echo "Bootstraps a Laravel project with front-end and back-end dependencies"
+  echo_color "cyan" "laravel-bootstrap v1.2.0 by Alex Hernandez and Matthew Fritz"
+  echo_color "cyan" "Bootstraps a Laravel project with front-end and back-end dependencies"
   echo
 }
 

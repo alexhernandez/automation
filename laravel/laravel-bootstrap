@@ -21,9 +21,6 @@ COMPOSER_DEPS="laravelcollective/html guzzlehttp/guzzle:~6.0 tiesa/ldap:dev-mast
 E_NOERROR=0
 E_DEPENDENCY=89
 
-# CONSTANTS
-PROJECT_DIR=$(pwd)
-
 # Echo a line of output with the given color. This function uses ANSI color codes.
 # Available colors:
 #   red, green, yellow
@@ -217,7 +214,7 @@ function install_composer() {
 
   # If the composer.phar file does not exist then the installation
   # failed and we need to throw an error
-  if [[ ! -a "composer.phar" ]]; then
+  if [[ ! -e "composer.phar" ]]; then
     echo_color "red" "[ERROR] Composer installation failed so you will need to do it manually"
     echo_color "red" "[ERROR] https://getcomposer.org/download/"
     exit $E_DEPENDENCY
@@ -238,7 +235,7 @@ function install_composer() {
 # Installs a fresh Laravel project in the current directory
 function install_laravel() {
   _laravel=$(ask_question "Would you like to create a fresh Laravel project here")
-  if [[ ${_laravel}} == true ]]; then
+  if [[ ${_laravel} == true ]]; then
     echo "[INFO] Creating a new Laravel project. Hang tight."
 
     # Use the Laravel installer if available; otherwise, fall back to the
@@ -308,7 +305,7 @@ printf "\n"
 
 # CHECK FOR LARAVEL INSTALL
 _pushed_laravel_dir=false
-if [[ ! -f "${PROJECT_DIR}/artisan" ]]; then
+if [[ ! -e "artisan" ]]; then
   echo "[INFO] It appears you are not within a Laravel project directory..."
 
   # We're not in a Laravel installation directory but let's see if the user
@@ -321,11 +318,11 @@ if [[ ! -f "${PROJECT_DIR}/artisan" ]]; then
 fi
 
 # CREATE ENV + APP:KEY IF THE ENV FILE DOES NOT ALREADY EXIST
-_env=$(ask_question "Do you wish to add a '.env' file")
-if [[ ${_env} == true ]]; then
-  if [[ -a ".env" ]]; then
-    printf "\n[INFO] Your env file already exists so this step will be skipped.\n"
-  else
+if [[ -e ".env" ]]; then
+  echo "[INFO] Your env file already exists so the creation step will be skipped"
+else
+  _env=$(ask_question "Do you wish to add a '.env' file")
+  if [[ ${_env} == true ]]; then
     cp .env.example .env
     printf "\n[INFO] Your env was updated successfully! \n"
     ${PHP} artisan key:generate

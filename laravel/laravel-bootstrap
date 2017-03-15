@@ -51,7 +51,7 @@ function echo_color() {
   # ANSI-quoted strings in Bash. The \e[0m means to clear the formatting at
   # the end of the line to prevent the styles from persisting.
   if [[ ${_color} == "red" ]]; then
-    echo -e $'\e[91m'"${_msg}"$'\e[0m'
+    echo -e $'\e[31m'"${_msg}"$'\e[0m'
   elif [[ ${_color} == "green" ]]; then
     echo -e $'\e[32m'"${_msg}"$'\e[0m'
   elif [[ ${_color} == "yellow" ]]; then
@@ -79,13 +79,23 @@ function display_toast() {
 # The user then gets prompted with the question along with " (Y/n)? " appended.
 #
 # Input of y* or Y* results in true; input of n* or N* results in false.
+#
+# You can also specify the default value when this function is being used in
+# conjunction with the --use-defaults flag:
+#
+# Example usage:
+# retval=$(ask_question "Would you like to do something" false)
+#
+# The user would then not be prompted and false will be the result. If the second
+# parameter is not specified then true will be the result by default.
 function ask_question() {
   local _question="$1"
+  local _default_val=${2:-true}
 
   # If we are using the default answers to questions we don't really need
-  # to prompt for input; we will just echo true instead
+  # to prompt for input; we will just echo the default value instead
   if [[ ${USE_DEFAULTS} == true ]]; then
-    echo true
+    echo $_default_val
     return;
   fi
 
@@ -122,8 +132,13 @@ function get_gist() {
   local _file="$1"
   local _uri="$2"
 
-  ${CURL} -o "${_file}" "${_uri}"
-  printf "\n[INFO] Your ${_file} was updated successfully! \n"
+  # Prevent clobbering
+  if [[ ! -e "${_file}" ]]; then
+    ${CURL} -o "${_file}" "${_uri}"
+    printf "\n[INFO] Your ${_file} was created successfully!\n"
+  else
+    printf "\n[INFO] Your ${_file} already exists so this step will be skipped\n"
+  fi
 }
 
 # Installs a Node package either globally or locally.
@@ -218,8 +233,10 @@ function install_composer() {
     exit $E_DEPENDENCY
   fi
 
-  # Sometimes Composer is screwy over SSL/TLS so let's ask outright
-  local _tls=$(ask_question "Would you like to install over SSL/TLS")
+  # Sometimes Composer is screwy over SSL/TLS so let's ask outright; if we are
+  # using the --use-defaults option this will default to false since it's just
+  # installing a package manager and no credentials are being sent
+  local _tls=$(ask_question "Would you like to install over SSL/TLS" false)
 
   # Create a /usr/local/composer directory so we can perform the installation
   # in that directory
@@ -274,6 +291,13 @@ function install_laravel() {
   _laravel=$(ask_question "Would you like to create a fresh Laravel project here")
   if [[ ${_laravel} == true ]]; then
     echo "[INFO] Creating a new Laravel project. Hang tight."
+
+    # Ensure a directory called "laravel" does not exit; otherwise, fail in
+    # order to prevent unintentional cloberring
+    if [[ -d "laravel" ]]; then
+      echo_color "red" "[ERROR] Laravel project directory already exists"
+      exit $E_DEPENDENCY
+    fi
 
     # Use the Laravel installer if available; otherwise, fall back to the
     # Composer method
@@ -392,8 +416,9 @@ if [[ ${_view_dirs} == true ]]; then
     touch "nav.blade.php"
     touch "header.blade.php"
     touch "footer.blade.php"
-    printf "\n[INFO] Your partials were updated successfully! \n"
   popd
+
+  echo "[INFO] Any missing partials have been created successfully!"
 fi
 
 printf "\n"

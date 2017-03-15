@@ -58,6 +58,29 @@ You can execute the script with a flag in order to take the default action for a
 
 You will not be prompted for any input during any of the actions.
 
+The default actions will be performed in order:
+
+1. Install Bower globally if it does not exist
+2. Install Gulp globally if it does not exist
+3. Install Composer in /usr/local/composer if it does not exist
+4. Create a fresh Laravel project if the script was not executed in a Laravel project directory
+5. Create a Laravel .env file if one does not already exist
+6. Create master and partial layout view templates if they do not already exist
+7. Create a .bowerrc file if one does not already exist
+8. Create an elixir.json file if one does not already exist
+9. Create a gulpfile.js file if one does not already exist
+10. Install the relevant Composer packages
+   * laravelcollective/html
+   * guzzlehttp/guzzle
+   * tiesa/ldap
+   * csun-metalab/laravel-proxypass
+   * barryvdh/laravel-debugbar
+11. Add the relevant service providers from the Composer packages to config/app.php
+12. Add the relevant alias from the Composer packages to config/app.php
+13. Publish all vendor resources from all Composer packages
+14. Create a bower.json file if it does not already exist
+15. Install all local Node packages from Laravel project's package.json file
+
 ## Mac Application Setup
 
 ```bash

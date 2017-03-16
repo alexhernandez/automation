@@ -3,7 +3,7 @@ Hassle Free Setup of Your Mac Binaries, Applications, Projects and Plugins.
 
 ## Table of Contents
 - [Quick Start Guide](https://github.com/csun-metalab/automation#quick-start-guide)
-- [Laravel: Bootstrap Front-End](https://github.com/csun-metalab/automation#laravel-bootstrap-front-end)
+- [Laravel: Bootstrap Front-End and Back-End](https://github.com/csun-metalab/automation#laravel-bootstrap-front-end-and-back-end)
 - [Mac Application Setup](https://github.com/csun-metalab/automation#mac-application-setup)
 - [Sublime Text Plugins](https://github.com/csun-metalab/automation#sublime-text-plugins)
 - [Dependencies](https://github.com/csun-metalab/automation#dependencies)
@@ -64,7 +64,7 @@ The default actions will be performed in order:
 
 1. Install Bower globally if it does not exist
 2. Install Gulp globally if it does not exist
-3. Install Composer in `/usr/local/composer` if it does not exist
+3. Install Composer in `/usr/local/composer` (aliased to `/usr/local/bin/composer`) if it does not exist
 4. Create a fresh Laravel project if the script was not executed in a Laravel project directory
 5. Create a Laravel `.env` file if one does not already exist
 6. Create master and partial layout view templates if they do not already exist
@@ -78,7 +78,7 @@ The default actions will be performed in order:
   * `csun-metalab/laravel-proxypass`
   * `barryvdh/laravel-debugbar`
 11. Add the relevant service providers from the Composer packages to `config/app.php`
-12. Add the relevant alias from the Composer packages to `config/app.php`
+12. Add the relevant aliases from the Composer packages to `config/app.php`
 13. Publish all vendor resources from all Composer packages
 14. Create a `bower.json` file if it does not already exist
 15. Install all local Node packages from Laravel project's `package.json` file

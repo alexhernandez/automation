@@ -354,6 +354,33 @@ function get_composer_package() {
   fi
 }
 
+# Maps the specified alias to the given class in a configuration file. The alias
+# will only be added if the aliased class does not already exist in the
+# configuration file.
+#
+# Example usage:
+# add_alias_to_config "app.php" "Form" "Collective\\\Html\\\FormFacade"
+#
+# The example will map the "Form" alias to class "Collective\\\Html\\\FormFacade"
+# within the "aliases" array in the app.php configuration file.
+function add_alias_to_config() {
+  local _config_file="$1"
+  local _alias_name="$2"
+  local _aliased_class="$3"
+
+  # Update Aliases" array if the aliased class does not already exist in the
+  # configuration file
+  local _line=$(grep "${_aliased_class}" ${_config_file})
+  if [[ -z ${_line} ]]; then
+    sed -i .tmp "/'aliases'/ a\\
+    \\        '${_alias_name}'      => ${_aliased_class}::class,\\
+    " ${_config_file}
+    printf "\n[INFO] Alias '${_alias_name}' mapped to '${_aliased_class}' in ${_config_file}."
+  else
+    printf "\n[INFO] Alias class '${_aliased_class}' already exists in ${_config_file}. Skipping.\n"
+  fi
+}
+
 # Display information about the application
 display_toast
 
@@ -487,16 +514,14 @@ if [[ ${_dependencies} == true ]]; then
       fi
     done
 
-    # Update Aliases" array
-    sed -i .tmp "/'aliases'/ a\\
-    \\        'Form'      => Collective\\\Html\\\FormFacade::class,\\
-    \\        'HTML'      => Collective\\\Html\\\HtmlFacade::class,\\
-    \\        'Debugbar'  => Barryvdh\\\Debugbar\\\Facade::class,\\
-    " ${config_app_file}
+    # Update the aliases in the configuration file
+    add_alias_to_config ${config_app_file} "Form" "Collective\\\Html\\\FormFacade"
+    add_alias_to_config ${config_app_file} "HTML" "Collective\\\Html\\\HtmlFacade"
+    add_alias_to_config ${config_app_file} "Debugbar" "Barryvdh\\\Debugbar\\\Facade"
 
-    # Remove .tmp files
+    # Remove any .tmp files that were generated
     rm "${config_app_file}.tmp"
-    printf "[INFO] Your ${config_app_file} was updated successfully!\n"
+    printf "\n[INFO] Your ${config_app_file} was updated successfully!\n"
   popd
 
   # Now that we have our service providers available, let's go ahead and

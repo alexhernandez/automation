@@ -354,6 +354,29 @@ function get_composer_package() {
   fi
 }
 
+# Adds the Composer package service providers to the specified configuration
+# file if they do not already exist.
+#
+# Example usage:
+# add_service_providers_to_config "app.php"
+function add_service_providers_to_config() {
+  local _config_file="$1"
+
+  # Update "Providers" array with any service providers not currently present
+  for _service_provider in ${COMPOSER_SPS}; do
+    _provider_line=$(grep "${_service_provider}::class" ${_config_file})
+    if [[ -z ${_provider_line} ]]; then
+      sed -i .tmp "/'providers'/ a\\
+      \\        ${_service_provider}::class,\\
+      " ${_config_file}
+
+      printf "\n[INFO] Service provider '${_service_provider}' added to ${_config_file}\n"
+    else
+      printf "\n[INFO] Service provider '${_service_provider}' already exists in ${_config_file}. Skipping.\n"
+    fi
+  done
+}
+
 # Maps the specified alias to the given class in a configuration file. The alias
 # will only be added if the aliased class does not already exist in the
 # configuration file.
@@ -504,29 +527,28 @@ if [[ ${_dependencies} == true ]]; then
   config_app_file="app.php"
   pushd "config"
 
-    # Update "Providers" array with any service providers not currently present
-    for _service_provider in ${COMPOSER_SPS}; do
-      _provider_line=$(grep "${_service_provider}::class" ${config_app_file})
-      if [[ -z ${_provider_line} ]]; then
-        sed -i .tmp "/'providers'/ a\\
-        \\        ${_service_provider}::class,\\
-        " ${config_app_file}
-      fi
-    done
+    # Update the service providers in the configuration file
+    add_service_providers_to_config ${config_app_file}
 
     # Update the aliases in the configuration file
     add_alias_to_config ${config_app_file} "Form" "Collective\\\Html\\\FormFacade"
     add_alias_to_config ${config_app_file} "HTML" "Collective\\\Html\\\HtmlFacade"
     add_alias_to_config ${config_app_file} "Debugbar" "Barryvdh\\\Debugbar\\\Facade"
 
-    # Remove any .tmp files that were generated
-    rm "${config_app_file}.tmp"
-    printf "\n[INFO] Your ${config_app_file} was updated successfully!\n"
+    # Remove any .tmp files that were generated and then display the message
+    # that the file was updated successfully. Otherwise we will display a
+    # message regarding the lack of changes made.
+    if [[ -f "${config_app_file}.tmp" ]]; then
+      rm "${config_app_file}.tmp"
+      printf "\n[INFO] Your ${config_app_file} was updated successfully!\n"
+    else
+      printf "\n[INFO] No modifications were made to your ${config_app_file}\n"
+    fi
   popd
 
   # Now that we have our service providers available, let's go ahead and
   # publish everything necessary from the vendor packages
-  printf "[INFO] Publishing vendor configuration and resources...\n"
+  printf "\n[INFO] Publishing vendor configuration and resources...\n"
   ${PHP} artisan vendor:publish
   printf "[INFO] Successfully published vendor assets!\n"
 

@@ -18,7 +18,10 @@ YARN=$(which yarn)
 NPM=$(which npm)
 
 # COMPOSER DEPENDENCIES
-COMPOSER_DEPS="laravelcollective/html guzzlehttp/guzzle:~6.0 tiesa/ldap:dev-master csun-metalab/laravel-proxypass:^1.0 barryvdh/laravel-debugbar"
+COMPOSER_DEPS="laravelcollective/html:2.0 guzzlehttp/guzzle:~6.0 tiesa/ldap:dev-master csun-metalab/laravel-proxypass:^1.0 barryvdh/laravel-debugbar"
+
+# SERVICE PROVIDERS FROM COMPOSER
+COMPOSER_SPS="Collective\\\Html\\\HtmlServiceProvider Barryvdh\\\Debugbar\\\ServiceProvider CSUNMetaLab\\\ProxyPass\\\Providers\\\ProxyPassServiceProvider"
 
 # APPLICATION EXIT CODES
 E_NOERROR=0
@@ -323,13 +326,32 @@ function install_laravel() {
   fi
 }
 
-# Retrieves and installs a Composer package
+# Retrieves and installs a Composer package if it is not already present
+# in the composer.json file
 function get_composer_package() {
   local _package="$1"
 
-  printf "\n[INFO] Fetching '${_package}'... \n"
-  ${COMPOSER} require ${_package}
-  printf "[INFO] Composer package '${_package}' was added successfully! \n"
+  # Attempt to extract the package name before the version number if the
+  # version number has been included. Indices in awk are 1-indexed hence
+  # why we need to subtract 1 from it to use it in Bash appropriately.
+  local _version_index=$(echo | awk '{ print index("'"${_package}"'", ":") }')-1
+  if [[ ${_version_index} -gt 0 ]]; then
+    local _package_temp="${_package:0:_version_index}"
+  else
+    local _package_temp="${_package}"
+  fi
+
+  # See if a line exists with the package name
+  local _line=$(grep "${_package_temp}" composer.json)
+
+  if [[ -z ${_line} ]]; then
+    printf "\n[INFO] Fetching '${_package}'... \n"
+    ${COMPOSER} require ${_package}
+    printf "[INFO] Composer package '${_package}' was added successfully! \n"
+  else
+    # A package with that name has already been installed regardless of version
+    printf "\n[INFO] Composer package '${_package_temp}' already exists in composer.json. Skipping.\n"
+  fi
 }
 
 # Display information about the application
@@ -455,12 +477,15 @@ if [[ ${_dependencies} == true ]]; then
   config_app_file="app.php"
   pushd "config"
 
-    # Update "Providers" array
-    sed -i .tmp "/'providers'/ a\\
-    \\        Collective\\\Html\\\HtmlServiceProvider::class,\\
-    \\        Barryvdh\\\Debugbar\\\ServiceProvider::class,\\
-    \\        CSUNMetaLab\\\ProxyPass\\\Providers\\\ProxyPassServiceProvider::class,\\
-    " ${config_app_file}
+    # Update "Providers" array with any service providers not currently present
+    for _service_provider in ${COMPOSER_SPS}; do
+      _provider_line=$(grep "${_service_provider}::class" ${config_app_file})
+      if [[ -z ${_provider_line} ]]; then
+        sed -i .tmp "/'providers'/ a\\
+        \\        ${_service_provider}::class,\\
+        " ${config_app_file}
+      fi
+    done
 
     # Update Aliases" array
     sed -i .tmp "/'aliases'/ a\\

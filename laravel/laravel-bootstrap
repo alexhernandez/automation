@@ -135,6 +135,8 @@ function get_gist() {
   local _file="$1"
   local _uri="$2"
 
+  printf "\n[INFO] Creating ${_file}...\n"
+
   # Prevent clobbering
   if [[ ! -e "${_file}" ]]; then
     ${CURL} -o "${_file}" "${_uri}"

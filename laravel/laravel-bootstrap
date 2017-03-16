@@ -345,17 +345,20 @@ elif [[ -z ${PHP} ]]; then
 elif [[ -z ${CURL} ]]; then
   echo_color "red" "[ERROR] Oh no curl is missing!"
   exit $E_DEPENDENCY
-elif [[ -z ${BOWER} ]]; then
+fi
+if [[ -z ${BOWER} ]]; then
   # Attempt to install Bower globally if it is missing
   echo "[INFO] It looks like you are missing Bower..."
   install_node_package "bower" "global"
   BOWER=$(which bower)
-elif [[ -z ${GULP} ]]; then
+fi
+if [[ -z ${GULP} ]]; then
   # Attempt to install Gulp globally if it is missing
   echo "[INFO] It looks like you are missing Gulp..."
   install_node_package "gulp" "global"
   GULP=$(which gulp)
-elif [[ -z ${COMPOSER} ]]; then
+fi
+if [[ -z ${COMPOSER} ]]; then
   # Attempt to install Composer if it is missing
   echo "[INFO] It looks like you are missing Composer..."
   install_composer

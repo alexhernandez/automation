@@ -1,9 +1,12 @@
 #!/bin/bash
 
-# Alex Hernandez and Matthew Fritz
+# Matthew Fritz and Alex Hernandez
 # Bootstrapping A Laravel Project
-# v1.2.4
+# v1.3.0
 # ===============================================================|
+
+# VERSIONING
+SCRIPT_VERSION="1.3.0"
 
 # GLOBAL VARS
 PHP=$(which php)
@@ -18,10 +21,10 @@ YARN=$(which yarn)
 NPM=$(which npm)
 
 # COMPOSER DEPENDENCIES
-COMPOSER_DEPS="laravelcollective/html guzzlehttp/guzzle:~6.0 tiesa/ldap:dev-master csun-metalab/laravel-proxypass:^1.0 barryvdh/laravel-debugbar"
+COMPOSER_DEPS="laravelcollective/html barryvdh/laravel-debugbar guzzlehttp/guzzle:~6.0 tiesa/ldap:dev-master csun-metalab/laravel-proxypass:^1.0 csun-metalab/laravel-directory-authentication csun-metalab/laravel-force-https csun-metalab/laravel-guzzle"
 
 # SERVICE PROVIDERS FROM COMPOSER
-COMPOSER_SPS="Collective\\\Html\\\HtmlServiceProvider Barryvdh\\\Debugbar\\\ServiceProvider CSUNMetaLab\\\ProxyPass\\\Providers\\\ProxyPassServiceProvider"
+COMPOSER_SPS="Collective\\\Html\\\HtmlServiceProvider Barryvdh\\\Debugbar\\\ServiceProvider CSUNMetaLab\\\ProxyPass\\\Providers\\\ProxyPassServiceProvider CSUNMetaLab\\\Authentication\\\Providers\\\AuthServiceProvider CSUNMetaLab\\\ForceHttps\\\Providers\\\ForceHttpsServiceProvider CSUNMetaLab\\\Guzzle\\\Providers\\\GuzzleServiceProvider"
 
 # APPLICATION EXIT CODES
 E_NOERROR=0
@@ -69,7 +72,7 @@ function echo_color() {
 
 # Displays a bit of information about this application
 function display_toast() {
-  echo_color "cyan" "laravel-bootstrap v1.2.4 by Alex Hernandez and Matthew Fritz"
+  echo_color "cyan" "laravel-bootstrap v${SCRIPT_VERSON} by Matthew Fritz and Alex Hernandez"
   echo_color "cyan" "Bootstraps a Laravel project with front-end and back-end dependencies"
   echo
 }
@@ -414,10 +417,10 @@ if [[ -z ${NPM} && -z ${YARN} ]]; then
   echo_color "red" "[ERROR] Please install either Yarn or NPM to install Node packages."
   exit $E_DEPENDENCY
 elif [[ -z ${PHP} ]]; then
-  echo_color "red" "[ERROR] Oh no php is missing!"
+  echo_color "red" "[ERROR] PHP was not detected on your system. Please install PHP to continue."
   exit $E_DEPENDENCY
 elif [[ -z ${CURL} ]]; then
-  echo_color "red" "[ERROR] Oh no curl is missing!"
+  echo_color "red" "[ERROR] Curl was not detected on your system. Please install libcurl to continue."
   exit $E_DEPENDENCY
 fi
 if [[ -z ${BOWER} ]]; then
